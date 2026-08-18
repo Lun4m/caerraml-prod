@@ -1,0 +1,66 @@
+name: era5t
+
+dates:
+  frequency: 3h
+  start: YYYY-mm-ddTHH:MM:SS
+  end: YYYY-mm-ddTHH:MM:SS
+
+input:
+  pipe:
+    - join:
+        - mars:
+            class: ea
+            expver: '0005'
+            grid: n320
+            levtype: sfc
+            param:
+              - 10u
+              - 10v
+              - 2d
+              - 2t
+              - lsm
+              - msl
+              - sdor
+              - skt
+              - slor
+              - sp
+              - tcw
+              - z
+              - stl1
+              - stl2
+              - swvl1
+              - swvl2
+              - 100u
+              - 100v
+              - hcc
+              - lcc
+              - mcc
+              - tcc
+        - mars:
+            class: ea
+            expver: '0005'
+            grid: n320
+            levtype: pl
+            param: [q, t, u, v, w, z]
+            level: [500, 600, 700, 850, 925, 1000]
+        - accumulate:
+            period: 3h
+            availability: auto
+            source:
+              mars:
+                expver: "0005"
+                class: ea
+                type: fc
+                param: [tp, cp, sf, ssrd, strd, ro]
+                levtype: sfc
+                grid: n320
+                stream: oper
+
+statistics:
+  allow_nans: []
+
+common:
+  mars_request:
+    class: ea
+    expver: '0005'
+    grid: n320

@@ -1,0 +1,12 @@
+runner:
+  downscaling:
+    noise_scheduler_params:
+      num_steps: 20
+      sigma_min: 0.05
+      sigma_max: 5000
+      rho: 100
+    sampler_params:
+      S_churn: 0
+      S_min: 0
+      S_max: 0
+      S_noise: 1

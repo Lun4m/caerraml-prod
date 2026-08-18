@@ -1,0 +1,61 @@
+[project]
+name = "caerra_tu_ml"
+description = "Inference environment for the CAERRA-TU-ML downscaling models"
+version = "1.0.0"
+requires-python = ">=3.12, <3.13"
+
+dependencies = [
+    "anemoi-inference",
+    "anemoi-training",
+    "anemoi-models",
+    "anemoi-graphs[tri]",
+    "anemoi-transform==0.3.1",
+    "anemoi-datasets==0.5.35",
+    "anemoi-utils==0.5.2",
+    "zarr==2.17.0",
+    "netCDF4==1.7.4",
+    "eccodes==2.47.0",
+    "pyyaml==6.0.3",
+    "pydantic==2.13.1",
+    "typing-extensions>=4.12.2",
+    "pydantic-core==2.46.1",
+    "torch==2.10.0",
+    "torch-geometric==2.7.0",
+    "torch-cluster==1.6.3",
+    "torch-scatter==2.1.2",
+    "torch-sparse==0.6.18",
+    "torch-spline-conv==1.2.2",
+    "torchvision==0.25.0",
+    "triton==3.6.0",
+    "nvidia-ml-py>=13.610.43",
+]
+
+[project.scripts]
+caerra_tu_ml = "caerra_tu_ml.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# [tool.hatch.build.targets.wheel]
+# packages = ["src/caerra-tu-ml"]
+
+[tool.uv.sources]
+anemoi-inference = { git = "https://github.com/ecmwf/anemoi-inference", branch = "feat/core-c3s2-361b-prod" }
+anemoi-training = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "training" }
+anemoi-models = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "models" }
+anemoi-graphs = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "graphs" }
+torch = [ { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
+torchvision = [ { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" } ]
+
+[[tool.uv.index]]
+# Recommended CUDA version for the AG cluster on ATOS
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv]
+# package = false
+environments = ["sys_platform == 'linux' or sys_platform == 'manylinux'"]
+# Automatically builds
+no-build-isolation-package = ["torch-cluster", "torch-scatter", "torch-sparse", "torch-spline-conv"]

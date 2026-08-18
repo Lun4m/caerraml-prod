@@ -1,0 +1,91 @@
+typed_variables:
+  10si:
+    mars:
+      param: 10si
+      levtype: sfc
+  10wdir:
+    mars:
+      param: 10wdir
+      levtype: sfc
+  2t:
+    mars:
+      param: 2t
+      levtype: sfc
+  2r:
+    mars:
+      param: 2r
+      levtype: sfc
+  msl:
+    mars:
+      param: msl
+      levtype: sfc
+  sp:
+    mars:
+      param: sp
+      levtype: sfc
+  tcc:
+    mars:
+      param: tcc
+      levtype: sfc
+  tciwv:
+    mars:
+      param: tciwv
+      levtype: sfc
+  ws_100:
+    mars:
+      param: ws
+      levtype: hl
+      levelist: 100
+  wdir_100:
+    mars:
+      param: wdir
+      levtype: hl
+      levelist: 100
+  10fg:
+    mars:
+      param: 10fg
+      levtype: sfc
+    period:
+      - 00:00:00
+      - 3h
+    process: maximum
+  mn2t:
+    mars:
+      param: mn2t
+      levtype: sfc
+    period:
+      - 00:00:00
+      - 3h
+    process: minimum
+  mx2t:
+    mars:
+      param: mx2t
+      levtype: sfc
+    period:
+      - 00:00:00
+      - 3h
+    process: maximum
+  ssrd:
+    mars:
+      param: ssrd
+      levtype: sfc
+    period:
+      - 00:00:00
+      - 3h
+    process: accumulation
+  strd:
+    mars:
+      param: strd
+      levtype: sfc
+    period:
+      - 00:00:00
+      - 3h
+    process: accumulation
+  tp:
+    mars:
+      param: tp
+      levtype: sfc
+    period:
+      - 00:00:00
+      - 3h
+    process: accumulation

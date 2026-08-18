@@ -1,0 +1,49 @@
+post_processors:
+  - backward_transform_filter:
+      filter: ddff-to-uv
+      u_component: 10u
+      v_component: 10v
+      wind_speed: 10si
+      wind_direction: 10wdir
+      convention: meteo
+      radians: false
+
+  - backward_transform_filter:
+      filter: ddff-to-uv
+      u_component: 100u
+      v_component: 100v
+      wind_speed: ws_100
+      wind_direction: wdir_100
+      convention: meteo
+      radians: false
+
+  - backward_transform_filter:
+      filter: r-to-d
+      relative_humidity: 2r
+      temperature: 2t
+      dewpoint: 2d
+      return_inputs: [temperature]
+
+  - backward_transform_filter:
+      filter: rescale
+      scale: 0.001
+      offset: 0.0
+      param: tp
+
+  - backward_transform_filter:
+      filter: rescale
+      scale: 0.01
+      offset: 0.0
+      param: tcc
+
+  - backward_transform_filter:
+      filter: clip-fields
+      param: 2r
+      minimum: 0.0
+      maximum: 100.0
+
+  - backward_transform_filter:
+      filter: clip-fields
+      param: tcc
+      minimum: 0.0
+      maximum: 100.0

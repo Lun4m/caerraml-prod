@@ -1,0 +1,27 @@
+description: CAERRA-ML-TU inference base config
+
+# NOTE: date, end_date, dataset, grib.path and
+# perturbationNumber are set by the ECFLOW workflow
+date: ${oc.env:ANEMOI_START}
+end_date: ${oc.env:ANEMOI_END}
+
+checkpoint: ${oc.env:HOME}/ckpts/${oc.env:CAERRA_REGION}.ckpt
+input:
+  dataset: ${oc.env:SCRATCH}/datasets/${oc.env:CAERRA_REGION}.zarr
+
+output:
+  grib:
+    path: ${oc.env:SCRATCH}/outputs/${oc.env:CAERRA_REGION}_${date}.grib2
+    encoding:
+      perturbationNumber: ${oc.decode:${oc.env:PERTURBATION_NUM}}
+      numberOfForecastsInEnsemble: 11
+    negative_step_mode: write
+    templates:
+      - file:
+          path: ${oc.env:HOME}/templates/${oc.env:CAERRA_REGION}.grib2
+          mode: auto
+
+runner:
+  downscaling:
+    time_step: 3h
+    hres_zarr: ${oc.env:HOME}/forcings/${oc.env:CAERRA_REGION}.zarr
