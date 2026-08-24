@@ -1,6 +1,6 @@
 import enum
 from argparse import ArgumentParser, ArgumentTypeError
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Self
 
 
@@ -19,27 +19,38 @@ class Action(enum.StrEnum):
 
 
 class Args:
-    def __init__(self, action: Action, start: str, end: str):
+    def __init__(self, action: Action, date: datetime):
         self.action = action
-        self.start = start
-        self.end = end
+        self.start = date.isoformat(timespec="seconds")
+
+        # anemoi-datasets treats end as inclusive, anemoi-inference as exclusive
+        # This should work for both
+        end = date + timedelta(hours=23)
+        self.end = end.isoformat(timespec="seconds")
 
     @staticmethod
-    def validate_date(arg: str) -> str:
+    def validate_date(arg: str) -> datetime:
         try:
-            _ = datetime.fromisoformat(arg)
+            date = datetime.fromisoformat(arg)
+            assert date.hour == 0 and date.minute == 0 and date.second == 0, ValueError
         except ValueError:
-            raise ArgumentTypeError(
-                f"requires format 'YYYY-mm-ddTHH-MM-SS', got '{arg}'"
-            )
-        return arg
+            raise ArgumentTypeError(f"requires format 'YYYY-mm-dd', got '{arg}'")
+        return date
 
     @classmethod
     def parse(cls) -> Self:
         ap = ArgumentParser()
-        ap.add_argument("action", type=Action)
-        ap.add_argument("start", type=cls.validate_date)
-        ap.add_argument("end", type=cls.validate_date)
-        args = ap.parse_args()
+        ap.add_argument(
+            "action",
+            type=Action,
+            choices=Action,
+            help="Prepare inputs or run inference",
+        )
+        ap.add_argument(
+            "date",
+            help="Date for which to run the inference (format 'YYYY-mm-dd')",
+            type=cls.validate_date,
+        )
 
+        args = ap.parse_args()
         return cls(**vars(args))

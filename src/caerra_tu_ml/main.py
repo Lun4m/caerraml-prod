@@ -5,18 +5,17 @@ from .pre import PreProcessor
 from .run import run_inference
 
 
+# TODO: not sure if this is needed
 def load_modules():
     subprocess.run(["module", "purge"], check=True)
-    subprocess.run(["module", "load", "uv"], check=True)
-    subprocess.run(["module", "load", "cuda/12.8"], check=True)
-    subprocess.run(["module", "load", "ecmwf-toolbox"], check=True)
-    subprocess.run(["module", "load", "python3/3.12.11"], check=True)
+
+    modules = ("uv", "cuda/12.8", "ecmwf-toolbox", "python3/3.12.11")
+    for module in modules:
+        subprocess.run(["module", "load", module], check=True)
 
 
 def main():
     args = Args.parse()
-
-    load_modules()
 
     match args.action:
         case Action.PREPARE:
