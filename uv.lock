@@ -379,6 +379,7 @@ dependencies = [
     { name = "anemoi-transform", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "anemoi-utils", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "eccodes", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "ecmwf-api-client", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "netcdf4", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "nvidia-ml-py", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "pydantic", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
@@ -411,6 +412,7 @@ requires-dist = [
     { name = "anemoi-transform", specifier = "==0.3.1" },
     { name = "anemoi-utils", specifier = "==0.5.2" },
     { name = "eccodes", specifier = "==2.47.0" },
+    { name = "ecmwf-api-client", specifier = "==1.7.0" },
     { name = "netcdf4", specifier = "==1.7.4" },
     { name = "nvidia-ml-py", specifier = ">=13.610.43" },
     { name = "pydantic", specifier = "==2.13.1" },
@@ -816,6 +818,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/dc/8d/63d8287e912a99a73fa37b9c821883fb8f09a900187a8c917ba72e3743be/eccodes-2.47.0.tar.gz", hash = "sha256:ae9207ef27c67656d068aab97f172abeb85fc3620f56faa22fdac5b1be75de69", size = 2467378, upload-time = "2026-04-22T11:30:08.465Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/a3/f58ff573ba0f678ff8116686e868afe436627b19b457a2aba62cd463c9ad/eccodes-2.47.0-py3-none-any.whl", hash = "sha256:13d0b28bd58e94e2c303f42415ca0dcc56ab3febf0f52b1fb0f1d4aa5e7db8e1", size = 91567, upload-time = "2026-04-22T11:30:06.789Z" },
+]
+
+[[package]]
+name = "ecmwf-api-client"
+version = "1.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/49/a6/23179f1fd6226c42c3c7103a265ade7c020e66f45f6068ec4bf66539068a/ecmwf_api_client-1.7.0.tar.gz", hash = "sha256:1971a047c01cc50cfc893f13fdfa710cf56fb872f1c04685b13c6f1d18431164", size = 13069, upload-time = "2026-06-17T13:12:39.688Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/52/c3/2d9bfd9cf6a0866dedd74936633761606c005d4aeee17be2b04764e3f1da/ecmwf_api_client-1.7.0-py3-none-any.whl", hash = "sha256:3648fa1f4cb0d56274e388acaccf5500da260f12126566e0fc0a9538e46f12d1", size = 13543, upload-time = "2026-06-17T13:12:38.383Z" },
 ]
 
 [[package]]

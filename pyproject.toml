@@ -28,6 +28,7 @@ dependencies = [
     "torchvision==0.25.0",
     "triton==3.6.0",
     "nvidia-ml-py>=13.610.43",
+    "ecmwf-api-client==1.7.0",
 ]
 
 [project.scripts]
