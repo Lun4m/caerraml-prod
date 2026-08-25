@@ -367,6 +367,38 @@ wheels = [
 ]
 
 [[package]]
+name = "caerra-prep"
+version = "1.0.0"
+source = { directory = "packages/prepare" }
+dependencies = [
+    { name = "anemoi-datasets", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "anemoi-transform", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "anemoi-utils", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "eccodes", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "pydantic", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "pydantic-core", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "pyyaml", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "typing-extensions", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "zarr", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "anemoi-datasets", specifier = "==0.5.35" },
+    { name = "anemoi-transform", specifier = "==0.3.1" },
+    { name = "anemoi-utils", specifier = "==0.5.2" },
+    { name = "eccodes", specifier = "==2.47.0" },
+    { name = "pydantic", specifier = "==2.13.1" },
+    { name = "pydantic-core", specifier = "==2.46.1" },
+    { name = "pyyaml", specifier = "==6.0.3" },
+    { name = "typing-extensions", specifier = ">=4.12.2" },
+    { name = "zarr", specifier = "==2.17.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=9.1.1" }]
+
+[[package]]
 name = "caerra-tu-ml"
 version = "1.0.0"
 source = { editable = "." }
@@ -378,6 +410,7 @@ dependencies = [
     { name = "anemoi-training", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "anemoi-transform", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "anemoi-utils", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
+    { name = "caerra-prep", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "eccodes", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "ecmwf-api-client", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "netcdf4", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
@@ -411,6 +444,7 @@ requires-dist = [
     { name = "anemoi-training", git = "https://github.com/ecmwf/anemoi-core?subdirectory=training&rev=5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d" },
     { name = "anemoi-transform", specifier = "==0.3.1" },
     { name = "anemoi-utils", specifier = "==0.5.2" },
+    { name = "caerra-prep", directory = "packages/prepare" },
     { name = "eccodes", specifier = "==2.47.0" },
     { name = "ecmwf-api-client", specifier = "==1.7.0" },
     { name = "netcdf4", specifier = "==1.7.4" },

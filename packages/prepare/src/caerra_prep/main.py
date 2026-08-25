@@ -3,6 +3,8 @@ from argparse import ArgumentParser, ArgumentTypeError
 from datetime import datetime, timedelta
 from typing import Self
 
+from .pre import PreProcessor
+
 N_MEMBERS = 11
 
 
@@ -15,20 +17,13 @@ class Domain(enum.StrEnum):
         return self.value
 
 
-class Action(enum.StrEnum):
-    PREPARE = "prepare"
-    RUN = "run"
-
-
 class Args:
     def __init__(
         self,
-        action: Action,
         date: datetime,
         members: int = N_MEMBERS,
         debug: bool = False,
     ):
-        self.action = action
         self.debug = debug
         self.start = date.isoformat(timespec="seconds")
 
@@ -51,12 +46,6 @@ class Args:
     def parse(cls) -> Self:
         ap = ArgumentParser()
         ap.add_argument(
-            "action",
-            type=Action,
-            choices=Action,
-            help="Prepare inputs or run inference",
-        )
-        ap.add_argument(
             "date",
             help="Date for which to run the inference (format 'YYYY-mm-dd')",
             type=cls.validate_date,
@@ -71,3 +60,10 @@ class Args:
 
         args = ap.parse_args()
         return cls(**vars(args))
+
+
+def main():
+    args = Args.parse()
+
+    processor = PreProcessor(args.debug)
+    processor.prepare_datasets(args)

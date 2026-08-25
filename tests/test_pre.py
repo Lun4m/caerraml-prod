@@ -1,7 +1,6 @@
 from pathlib import Path
 
-from caerra_tu_ml.cli import Action, Args
-from caerra_tu_ml.pre import PreProcessor
+from caerra_prep import Action, Args, PreProcessor
 
 
 def test_update_recipe(tmp_path: Path):

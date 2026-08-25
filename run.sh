@@ -19,5 +19,4 @@ module load ecmwf-toolbox/2026.04.0.0
 module load python3/3.12.11
 module load uv
 
-uv run --frozen caerra_tu_ml prepare "$date"
-uv run --frozen caerra_tu_ml run "$date"
+uv run --frozen caerra_tu_ml "$date"

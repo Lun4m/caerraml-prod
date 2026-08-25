@@ -3,7 +3,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from .cli import Args, Domain
+from .main import Args, Domain
 
 
 class PreProcessor:
@@ -12,7 +12,7 @@ class PreProcessor:
 
         default = Path("")
         self.masks = default if debug else Path(os.environ["HOME"]) / "masks"
-        self.outputs = default if debug else Path(os.environ["SCRATCH"]) / "outputs"
+        self.outputs = default if debug else Path(os.environ["SCRATCH"]) / "datasets"
         self.recipes = default if debug else Path.cwd() / "recipes"
 
     def prepare_datasets(self, args: Args):
