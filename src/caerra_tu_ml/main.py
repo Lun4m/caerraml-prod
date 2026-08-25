@@ -19,7 +19,7 @@ def main():
 
     match args.action:
         case Action.PREPARE:
-            processor = PreProcessor()
+            processor = PreProcessor(args.debug)
             processor.prepare_datasets(args)
 
         case Action.RUN:

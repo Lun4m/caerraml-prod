@@ -21,8 +21,15 @@ class Action(enum.StrEnum):
 
 
 class Args:
-    def __init__(self, action: Action, date: datetime, members: int):
+    def __init__(
+        self,
+        action: Action,
+        date: datetime,
+        members: int = N_MEMBERS,
+        debug: bool = False,
+    ):
         self.action = action
+        self.debug = debug
         self.start = date.isoformat(timespec="seconds")
 
         # anemoi-datasets treats end as inclusive, anemoi-inference as exclusive
@@ -60,6 +67,7 @@ class Args:
             type=int,
             default=N_MEMBERS,
         )
+        ap.add_argument("--debug", action="store_true")
 
         args = ap.parse_args()
         return cls(**vars(args))

@@ -54,6 +54,11 @@ name = "pytorch-cuda"
 url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
 [tool.uv]
 # package = false
 environments = ["sys_platform == 'linux' or sys_platform == 'manylinux'"]
