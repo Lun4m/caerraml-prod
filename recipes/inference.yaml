@@ -14,7 +14,7 @@ output:
     path: ${oc.env:SCRATCH}/outputs/${oc.env:CAERRA_REGION}_${date}.grib2
     encoding:
       perturbationNumber: ${oc.decode:${oc.env:PERTURBATION_NUM}}
-      numberOfForecastsInEnsemble: 11
+      numberOfForecastsInEnsemble: ${oc.decode:${oc.env:N_MEMBERS}}
     negative_step_mode: write
     templates:
       - file:

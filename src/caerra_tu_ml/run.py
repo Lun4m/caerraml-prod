@@ -8,7 +8,6 @@ from .cli import Args, Domain
 
 DEFAULT_NAMESPACE = "production-v1"
 DEFAULT_ALGORITHM = "sha256"
-N_MEMBERS = 11
 
 
 def sample_seed(
@@ -42,6 +41,8 @@ def sample_seed(
 def run_inference(args: Args):
     os.environ["ANEMOI_START"] = args.start
     os.environ["ANEMOI_END"] = args.end
+    os.environ["N_MEMBERS"] = str(args.members)
+
     namespace = os.environ.get("CAERRA_NAMESPACE", DEFAULT_NAMESPACE)
 
     recipes = Path.cwd() / "recipes"
@@ -53,7 +54,7 @@ def run_inference(args: Args):
     for domain in Domain:
         run_conf = recipes / f"defaults/{domain}.yaml"
 
-        for member in range(N_MEMBERS):
+        for member in range(args.members):
             seed = sample_seed(args.start, member, domain, namespace=namespace)
 
             env = os.environ.copy()

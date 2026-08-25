@@ -11,7 +11,7 @@
 
 module purge
 module load uv
-module load cuda/12.8
+module load cuda/13.0
 module load ecmwf-toolbox
 module load python3/3.12.11
 

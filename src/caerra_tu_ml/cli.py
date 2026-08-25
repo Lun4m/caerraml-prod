@@ -3,6 +3,8 @@ from argparse import ArgumentParser, ArgumentTypeError
 from datetime import datetime, timedelta
 from typing import Self
 
+N_MEMBERS = 11
+
 
 class Domain(enum.StrEnum):
     CARRA_EAST = "carra-east"
@@ -19,7 +21,7 @@ class Action(enum.StrEnum):
 
 
 class Args:
-    def __init__(self, action: Action, date: datetime):
+    def __init__(self, action: Action, date: datetime, members: int):
         self.action = action
         self.start = date.isoformat(timespec="seconds")
 
@@ -27,6 +29,7 @@ class Args:
         # This should work for both
         end = date + timedelta(hours=23)
         self.end = end.isoformat(timespec="seconds")
+        self.members = members
 
     @staticmethod
     def validate_date(arg: str) -> datetime:
@@ -50,6 +53,12 @@ class Args:
             "date",
             help="Date for which to run the inference (format 'YYYY-mm-dd')",
             type=cls.validate_date,
+        )
+        ap.add_argument(
+            "--members",
+            help="Number of members",
+            type=int,
+            default=N_MEMBERS,
         )
 
         args = ap.parse_args()
