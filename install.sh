@@ -15,8 +15,9 @@ fi
 case $cluster in
 AC)
     echo "Setting ERA5T dataset path in recipes/regrid.yaml"
-    era5t_path="$SCRATCH/datasets/era5t.zarr"
-    sed -e "s|\(dataset:\s\).*|\1$era5t_path|" recipes/regrid_template.yaml >recipes/regrid.yaml
+    base_dir="packages/prepare/recipes"
+    out_path="$SCRATCH/datasets/era5t.zarr"
+    sed -e "s|\(dataset:\s\).*|\1$out_path|" $base_dir/regrid_template.yaml >$base_dir/regrid.yaml
 
     # Only need to prepare on AC
     cd packages/prepare

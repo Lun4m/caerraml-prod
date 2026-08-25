@@ -1,4 +1,4 @@
 **/__pycache__/
 .venv
 logs/
-recipes/regrid.yaml
+**/recipes/regrid.yaml
