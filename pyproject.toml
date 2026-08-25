@@ -45,13 +45,13 @@ anemoi-inference = { git = "https://github.com/ecmwf/anemoi-inference", branch =
 anemoi-training = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "training" }
 anemoi-models = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "models" }
 anemoi-graphs = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "graphs" }
-torch = [ { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
-torchvision = [ { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" } ]
+torch = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
+torchvision = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" } ]
+triton = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
 
 [[tool.uv.index]]
-# Recommended CUDA version for the AG cluster on ATOS
-name = "pytorch-cu128"
-url = "https://download.pytorch.org/whl/cu128"
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu130"
 explicit = true
 
 [tool.uv]
