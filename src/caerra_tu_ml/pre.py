@@ -50,7 +50,7 @@ class PreProcessor:
         output = self.outputs / f"{domain}.zarr"
 
         subprocess.run(
-            f"uv run --frozen anemoi-datasets create {recipe} {output}",
+            f"uv run --frozen anemoi-datasets create {recipe} {output} --overwrite",
             check=True,
             shell=True,
         )
