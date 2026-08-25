@@ -17,15 +17,15 @@ class PreProcessor:
 
     def prepare_datasets(self, args: Args):
         # recipe names
-        ERA5 = "era5t.yaml"
-        REGRID = "regrid.yaml"
+        ERA5 = "era5t"
+        REGRID = "regrid"
 
         # NOTE: ERA5 needs to be the first one, because the other datasets are
         # cropped versions of ERA5
         inputs = [(ERA5, ERA5)] + [(REGRID, domain) for domain in Domain]
 
         for recipe_name, domain in inputs:
-            recipe = self.recipes / recipe_name
+            recipe = (self.recipes / recipe_name).with_suffix(".yaml")
             self._update_recipe(recipe, domain, args)
 
             if not self.debug:
