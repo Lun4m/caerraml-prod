@@ -1,2 +1,1 @@
-from .main import Args, Domain
-from .pre import PreProcessor
+from .main import Args, Domain, PreProcessor

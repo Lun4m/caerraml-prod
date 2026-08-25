@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from caerra_prep import Action, Args, PreProcessor
+from caerra_prep import Args, PreProcessor
 
 
 def test_update_recipe(tmp_path: Path):
     date = "2026-01-01"
     domain = "whatever"
-    args = Args(Action.PREPARE, Args.validate_date(date))
+    args = Args(Args.validate_date(date))
 
     content = """dates:
     frequency: 3h

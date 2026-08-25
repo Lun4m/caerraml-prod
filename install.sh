@@ -12,12 +12,12 @@ if [[ "${UV_CACHE_DIR@a}" != *x* ]]; then
     source "${HOME}/.bashrc"
 fi
 
-echo "Setting ERA5T dataset path in recipes/regrid.yaml"
-era5t_path="$SCRATCH/datasets/era5t.zarr"
-sed -e "s|\(dataset:\s\).*|\1$era5t_path|" recipes/regrid_template.yaml >recipes/regrid.yaml
-
 case $cluster in
 AC)
+    echo "Setting ERA5T dataset path in recipes/regrid.yaml"
+    era5t_path="$SCRATCH/datasets/era5t.zarr"
+    sed -e "s|\(dataset:\s\).*|\1$era5t_path|" recipes/regrid_template.yaml >recipes/regrid.yaml
+
     # Only need to prepare on AC
     cd packages/prepare
     uv sync --frozen

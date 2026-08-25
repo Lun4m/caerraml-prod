@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-caerra_prepare = "prepare.main:main"
+caerra_prep = "caerra_prep.main:main"
 
 [build-system]
 requires = ["hatchling"]
