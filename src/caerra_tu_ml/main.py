@@ -40,11 +40,10 @@ def sample_seed(
 
 def run_inference(args: Args):
     os.environ["CAERRA_DATE"] = args.date_str
-    # os.environ["CAERRA_END"] = args.end
     os.environ["N_MEMBERS"] = str(args.members)
 
     namespace = os.environ.get("CAERRA_NAMESPACE", DEFAULT_NAMESPACE)
-    print("Using namespace:", namespace)
+    print("Using namespace:", namespace, flush=True)
 
     recipes = Path.cwd() / "recipes"
     base_conf = recipes / "inference.yaml"
