@@ -39,11 +39,12 @@ def sample_seed(
 
 
 def run_inference(args: Args):
-    os.environ["ANEMOI_START"] = args.start
-    os.environ["ANEMOI_END"] = args.end
+    os.environ["CAERRA_DATE"] = args.date_str
+    # os.environ["CAERRA_END"] = args.end
     os.environ["N_MEMBERS"] = str(args.members)
 
     namespace = os.environ.get("CAERRA_NAMESPACE", DEFAULT_NAMESPACE)
+    print("Using namespace:", namespace)
 
     recipes = Path.cwd() / "recipes"
     base_conf = recipes / "inference.yaml"
@@ -61,6 +62,7 @@ def run_inference(args: Args):
             env["CAERRA_REGION"] = domain
             env["ANEMOI_BASE_SEED"] = str(seed)
             env["PERTURBATION_NUM"] = str(member)
+            env["GRIB_OUTNAME"] = f"{args.date_str}/{domain}_m{member:02}.grib2"
 
             subprocess.run(
                 f"uv run --frozen \

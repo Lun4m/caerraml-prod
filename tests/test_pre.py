@@ -5,6 +5,7 @@ from caerra_prep import Args, PreProcessor
 
 def test_update_recipe(tmp_path: Path):
     date = "2026-01-01"
+    path = Path("okay")
     domain = "whatever"
     args = Args(Args.validate_date(date))
 
@@ -14,6 +15,7 @@ def test_update_recipe(tmp_path: Path):
     end: sdfsdf
 
 regrid:
+    dataset: my_precious/path.out.zarr
     mask: sdfsdfsdfsdf
 """
 
@@ -23,12 +25,13 @@ regrid:
     end: {date}T23:00:00
 
 regrid:
-    mask: {domain}.npz
+    dataset: {path / date / "era5t.zarr"}
+    mask: {path / domain}.npz
 """
     tmp_file = tmp_path / "tmp.yaml"
     tmp_file.write_text(content)
 
-    proc = PreProcessor(debug=True)
+    proc = PreProcessor(args, masks=path, dsets=path, recipes=path)
     proc._update_recipe(tmp_file, domain, args)
 
     updated = tmp_file.read_text()

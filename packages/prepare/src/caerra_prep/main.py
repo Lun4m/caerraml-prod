@@ -22,27 +22,29 @@ class Domain(enum.StrEnum):
 class Args:
     def __init__(
         self,
-        date: datetime,
+        date: tuple[str, datetime],
         members: int = N_MEMBERS,
-        debug: bool = False,
+        overwrite: bool = False,
     ):
-        self.debug = debug
-        self.start = date.isoformat(timespec="seconds")
+        date_str, _date = date
+        self.date_str = date_str
+        self.start = _date.isoformat(timespec="seconds")
 
         # anemoi-datasets treats end as inclusive, anemoi-inference as exclusive
         # This should work for both
-        end = date + timedelta(hours=23)
+        end = _date + timedelta(hours=23)
         self.end = end.isoformat(timespec="seconds")
         self.members = members
+        self.overwrite = overwrite
 
     @staticmethod
-    def validate_date(arg: str) -> datetime:
+    def validate_date(arg: str) -> tuple[str, datetime]:
         try:
             date = datetime.fromisoformat(arg)
             assert date.hour == 0 and date.minute == 0 and date.second == 0, ValueError
         except ValueError:
             raise ArgumentTypeError(f"requires format 'YYYY-mm-dd', got '{arg}'")
-        return date
+        return (arg, date)
 
     @classmethod
     def parse(cls) -> Self:
@@ -58,36 +60,45 @@ class Args:
             type=int,
             default=N_MEMBERS,
         )
-        ap.add_argument("--debug", action="store_true")
+        ap.add_argument(
+            "--overwrite", help="Whether to overwrite the datasets", action="store_true"
+        )
 
         args = ap.parse_args()
         return cls(**vars(args))
 
 
 class PreProcessor:
-    def __init__(self, debug: bool = False):
-        self.debug = debug
+    type OptPath = Path | None
+    # recipe names
+    ERA5 = "era5t"
+    REGRID = "regrid"
 
-        default = Path("")
-        self.masks = default if debug else Path(os.environ["HOME"]) / "masks"
-        self.outputs = default if debug else Path(os.environ["SCRATCH"]) / "datasets"
-        self.recipes = default if debug else Path.cwd() / "recipes"
+    def __init__(
+        self,
+        args: Args,
+        masks: OptPath = None,
+        dsets: OptPath = None,
+        recipes: OptPath = None,
+    ):
+        self.masks = masks if masks is not None else Path(os.environ["HOME"]) / "masks"
+        self.recipes = recipes if recipes is not None else Path.cwd() / "recipes"
+
+        self.dsets = (
+            dsets if dsets is not None else Path(os.environ["SCRATCH"]) / "datasets"
+        )
+        self.dsets /= args.date_str
+        self.overwrite = args.overwrite
 
     def prepare_datasets(self, args: Args):
-        # recipe names
-        ERA5 = "era5t"
-        REGRID = "regrid"
-
         # NOTE: ERA5 needs to be the first one, because the other datasets are
         # cropped versions of ERA5
-        inputs = [(ERA5, ERA5)] + [(REGRID, domain) for domain in Domain]
+        inputs = [(self.ERA5, self.ERA5)] + [(self.REGRID, domain) for domain in Domain]
 
         for recipe_name, domain in inputs:
             recipe = (self.recipes / recipe_name).with_suffix(".yaml")
             self._update_recipe(recipe, domain, args)
-
-            if not self.debug:
-                self._create_dataset(recipe, domain)
+            self._create_dataset(recipe, domain)
 
     def _update_recipe(self, recipe: Path, domain: str, args: Args):
         text = recipe.read_text()
@@ -100,15 +111,18 @@ class PreProcessor:
         mask_path = self.masks / f"{domain}.npz"
         text = re.sub(r"(mask:\s).*", rf"\g<1>{mask_path}", text)
 
+        # Update input directory based on day
+        era5_path = self.dsets / f"{self.ERA5}.zarr"
+        text = re.sub(r"(dataset:\s).*", rf"\g<1>{era5_path}", text)
+
         recipe.write_text(text)
 
     def _create_dataset(self, recipe: Path, domain: str):
-        assert not self.debug
-
-        output = self.outputs / f"{domain}.zarr"
+        output = self.dsets / f"{domain}.zarr"
+        overwrite = "--overwrite" if self.overwrite else ""
 
         subprocess.run(
-            f"uv run --frozen anemoi-datasets create {recipe} {output} --overwrite",
+            f"uv run --frozen anemoi-datasets create {recipe} {output} {overwrite}",
             check=True,
             shell=True,
         )
@@ -117,5 +131,5 @@ class PreProcessor:
 def main():
     args = Args.parse()
 
-    processor = PreProcessor(args.debug)
+    processor = PreProcessor(args)
     processor.prepare_datasets(args)
