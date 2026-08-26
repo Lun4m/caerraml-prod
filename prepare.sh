@@ -1,5 +1,6 @@
 #!/bin/bash
 # TODO: does this require SLURM
+# NOTE: run inside tmux
 set -e
 date=$1
 
@@ -11,4 +12,4 @@ module load uv
 
 root=$(pwd)
 cd packages/prepare
-uv run --frozen caerra_prep "$date" &>"$root/logs/prepare.out" &
+uv run --frozen caerra_prep "$date" 2>&1 | tee "$root/logs/prepare.out"
