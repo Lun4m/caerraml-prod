@@ -12,4 +12,4 @@ module load uv
 
 root=$(pwd)
 cd packages/prepare
-uv run --frozen caerra_prep "$date" 2>&1 | tee "$root/logs/prepare.out"
+uv run --frozen caerra-prep "$date" 2>&1 | tee "$root/logs/prepare.out"

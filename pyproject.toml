@@ -33,7 +33,7 @@ dependencies = [
 ]
 
 [project.scripts]
-caerra_tu_ml = "caerra_tu_ml.main:main"
+caerra-tu-ml = "caerra_tu_ml.main:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=inference
+#SBATCH --job-name=caerra-tu-ml
 #SBATCH --output=logs/%x.out
 #SBATCH --qos=ng
 #SBATCH --ntasks=1
@@ -19,4 +19,4 @@ module load ecmwf-toolbox/2026.04.0.0
 module load python3/3.12.11
 module load uv
 
-uv run --frozen caerra_tu_ml "$date"
+uv run --frozen caerra-tu-ml "$date"
