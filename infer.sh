@@ -19,4 +19,7 @@ module load ecmwf-toolbox/2026.04.0.0
 module load python3/3.12.11
 module load uv
 
+# NOTE: required to avoid cublas runtime errors
+unset LD_LIBRARY_PATH
+
 uv run --frozen caerra-tu-ml "$date"
