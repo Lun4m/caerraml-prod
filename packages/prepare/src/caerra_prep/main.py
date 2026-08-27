@@ -23,7 +23,9 @@ class Args:
     def __init__(
         self,
         date: tuple[str, datetime],
-        members: int = N_MEMBERS,
+        n_members: int = N_MEMBERS,
+        members: list[int] | None = None,
+        domains: list[Domain] | None = None,
         overwrite: bool = False,
     ):
         date_str, _date = date
@@ -34,7 +36,11 @@ class Args:
         # This should work for both
         end = _date + timedelta(hours=23)
         self.end = end.isoformat(timespec="seconds")
-        self.members = members
+
+        self.domains = set(domains) if domains is not None else set(Domain)
+        self.members = members if members is not None else list(range(n_members))
+
+        self.n_members = n_members
         self.overwrite = overwrite
 
     @staticmethod
@@ -55,10 +61,25 @@ class Args:
             type=cls.validate_date,
         )
         ap.add_argument(
-            "--members",
-            help="Number of members",
+            "--n_members",
             type=int,
             default=N_MEMBERS,
+            help="Number of members",
+        )
+        ap.add_argument(
+            "--domains",
+            nargs="+",
+            type=Domain,
+            choices=Domain,
+            default=None,
+            help="Only operate on the given domains (all by default)",
+        )
+        ap.add_argument(
+            "--members",
+            nargs="+",
+            type=int,
+            default=None,
+            help="Only generate the given members",
         )
         ap.add_argument(
             "--overwrite", help="Whether to overwrite the datasets", action="store_true"

@@ -40,7 +40,7 @@ def sample_seed(
 
 def run_inference(args: Args):
     os.environ["CAERRA_DATE"] = args.date_str
-    os.environ["N_MEMBERS"] = str(args.members)
+    os.environ["N_MEMBERS"] = str(args.n_members)
 
     namespace = os.environ.get("CAERRA_NAMESPACE", DEFAULT_NAMESPACE)
     print("Using namespace:", namespace, flush=True)
@@ -51,10 +51,10 @@ def run_inference(args: Args):
     var_conf = recipes / "defaults/typed_variables.yaml"
 
     # NOTE: these are run sequentially, but could be parallelized
-    for domain in Domain:
+    for domain in args.domains:
         run_conf = recipes / f"defaults/{domain}.yaml"
 
-        for member in range(args.members):
+        for member in args.members:
             seed = sample_seed(args.start, member, domain, namespace=namespace)
 
             env = os.environ.copy()
