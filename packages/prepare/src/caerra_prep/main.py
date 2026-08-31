@@ -7,7 +7,20 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Self
 
+# recipe names
+ERA5 = "era5t"
+REGRID = "regrid"
+
+# Env var names
+MASKS_PATH = "CAERRA_MASKS_PATH"
+DATASETS_PATH = "CAERRA_DATASETS_PATH"
+
 N_MEMBERS = 11
+
+
+def get_recipes_path() -> Path:
+    """Assumes we are invoking the console scripts from the root of the repository"""
+    return Path.cwd() / "recipes"
 
 
 class Domain(enum.StrEnum):
@@ -90,38 +103,33 @@ class Args:
 
 
 class PreProcessor:
-    type OptPath = Path | None
-    # recipe names
-    ERA5 = "era5t"
-    REGRID = "regrid"
-
     def __init__(
         self,
         args: Args,
-        masks: OptPath = None,
-        dsets: OptPath = None,
-        recipes: OptPath = None,
     ):
-        self.masks = masks if masks is not None else Path(os.environ["HOME"]) / "masks"
-        self.recipes = recipes if recipes is not None else Path.cwd() / "recipes"
+        self.masks = Path(os.environ.get(MASKS_PATH, ""))
+        self.dsets = Path(os.environ.get(DATASETS_PATH, ""))
+        self.recipes = get_recipes_path()
 
-        self.dsets = (
-            dsets if dsets is not None else Path(os.environ["SCRATCH"]) / "datasets"
-        )
+        # Append date
         self.dsets /= args.date_str
         self.overwrite = args.overwrite
 
     def prepare_datasets(self, args: Args):
         # NOTE: ERA5 needs to be the first one, because the other datasets are
         # cropped versions of ERA5
-        inputs = [(self.ERA5, self.ERA5)] + [(self.REGRID, domain) for domain in Domain]
+        inputs = [(ERA5, ERA5)] + [(REGRID, domain) for domain in Domain]
 
         for recipe_name, domain in inputs:
-            recipe = (self.recipes / recipe_name).with_suffix(".yaml")
-            self._update_recipe(recipe, domain, args)
+            recipe = self.recipes / f"{recipe_name}.template"
+            text = self._update_recipe_text(recipe, domain, args)
+
+            # Create output recipe
+            recipe = recipe.with_suffix(".yaml")
+            recipe.write_text(text)
             self._create_dataset(recipe, domain)
 
-    def _update_recipe(self, recipe: Path, domain: str, args: Args):
+    def _update_recipe_text(self, recipe: Path, domain: str, args: Args) -> str:
         text = recipe.read_text()
 
         # Update dates
@@ -133,10 +141,9 @@ class PreProcessor:
         text = re.sub(r"(mask:\s).*", rf"\g<1>{mask_path}", text)
 
         # Update input directory based on day
-        era5_path = self.dsets / f"{self.ERA5}.zarr"
+        era5_path = self.dsets / f"{ERA5}.zarr"
         text = re.sub(r"(dataset:\s).*", rf"\g<1>{era5_path}", text)
-
-        recipe.write_text(text)
+        return text
 
     def _create_dataset(self, recipe: Path, domain: str):
         output = self.dsets / f"{domain}.zarr"

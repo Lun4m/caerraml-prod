@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=caerra-tu-ml
-#SBATCH --output=logs/%x.out
+#SBATCH --output=logs/%x_%j.out
 #SBATCH --qos=ng
 #SBATCH --ntasks=1
 #SBATCH --gpus=1

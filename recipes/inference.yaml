@@ -1,25 +1,25 @@
 description: CAERRA-ML-TU inference base config
-checkpoint: ${oc.env:HOME}/ckpts/${oc.env:CAERRA_REGION}.ckpt
+checkpoint: ${oc.env:CAERRA_CKPTS_PATH}/${oc.env:CAERRA_REGION}.ckpt
 
 date: ${oc.env:CAERRA_DATE}T00:00:00
 end_date: ${oc.env:CAERRA_DATE}T23:00:00
 
 input:
-  dataset: ${oc.env:SCRATCH}/datasets/${oc.env:CAERRA_DATE}/${oc.env:CAERRA_REGION}.zarr
+  dataset: ${oc.env:CAERRA_DATASETS_PATH}/${oc.env:CAERRA_DATE}/${oc.env:CAERRA_REGION}.zarr
 
 output:
   grib:
-    path: ${oc.env:SCRATCH}/outputs/${oc.env:GRIB_OUTNAME}
+    path: ${oc.env:CAERRA_OUTPUTS_PATH}/${oc.env:GRIB_OUTNAME}.grib2
     encoding:
       perturbationNumber: ${oc.decode:${oc.env:PERTURBATION_NUM}}
       numberOfForecastsInEnsemble: ${oc.decode:${oc.env:N_MEMBERS}}
     negative_step_mode: write
     templates:
       - file:
-          path: ${oc.env:HOME}/templates/${oc.env:CAERRA_REGION}.grib2
+          path: ${oc.env:CAERRA_TEMPLATES_PATH}/${oc.env:CAERRA_REGION}.grib2
           mode: auto
 
 runner:
   downscaling:
     time_step: 3h
-    hres_zarr: ${oc.env:HOME}/forcings/${oc.env:CAERRA_REGION}.zarr
+    hres_zarr: ${oc.env:CAERRA_FORCINGS_PATH}/${oc.env:CAERRA_REGION}.zarr

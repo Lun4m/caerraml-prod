@@ -2,9 +2,8 @@ import hashlib
 import json
 import os
 import subprocess
-from pathlib import Path
 
-from caerra_prep import Args, Domain
+from caerra_prep import Args, Domain, get_recipes_path
 
 DEFAULT_NAMESPACE = "production-v1"
 DEFAULT_ALGORITHM = "sha256"
@@ -45,7 +44,7 @@ def run_inference(args: Args):
     namespace = os.environ.get("CAERRA_NAMESPACE", DEFAULT_NAMESPACE)
     print("Using namespace:", namespace, flush=True)
 
-    recipes = Path.cwd() / "recipes"
+    recipes = get_recipes_path()
     base_conf = recipes / "inference.yaml"
     post_proc = recipes / "defaults/post_processors.yaml"
     var_conf = recipes / "defaults/typed_variables.yaml"
@@ -61,7 +60,7 @@ def run_inference(args: Args):
             env["CAERRA_REGION"] = domain
             env["ANEMOI_BASE_SEED"] = str(seed)
             env["PERTURBATION_NUM"] = str(member)
-            env["GRIB_OUTNAME"] = f"{args.date_str}/{domain}_m{member:02}.grib2"
+            env["GRIB_OUTNAME"] = f"{args.date_str}/{domain}_m{member:02}"
 
             subprocess.run(
                 f"uv run --frozen \

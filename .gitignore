@@ -2,3 +2,4 @@
 .venv
 logs/
 **/recipes/regrid.yaml
+**/recipes/era5t.yaml
