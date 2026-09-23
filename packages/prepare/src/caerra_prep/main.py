@@ -18,9 +18,13 @@ DATASETS_PATH = "CAERRA_DATASETS_PATH"
 N_MEMBERS = 11
 
 
-def get_recipes_path() -> Path:
-    """Assumes we are invoking the console scripts from the root of the repository"""
-    return Path.cwd() / "recipes"
+def get_recipes_path(file: str, target: str) -> Path:
+    """
+    file:   path to the file calling this function (i.e., __file__)
+    target: relative path to the recipes directory from 'file' parent directory
+    """
+    base = Path(file).parent
+    return (base / target).resolve()
 
 
 class Domain(enum.StrEnum):
@@ -107,9 +111,11 @@ class PreProcessor:
         self,
         args: Args,
     ):
+
         self.masks = Path(os.environ.get(MASKS_PATH, ""))
         self.dsets = Path(os.environ.get(DATASETS_PATH, ""))
-        self.recipes = get_recipes_path()
+        # recipes dir lives in the root of the repo
+        self.recipes = get_recipes_path(__file__, "../../../../recipes")
 
         # Append date
         self.dsets /= args.date_str

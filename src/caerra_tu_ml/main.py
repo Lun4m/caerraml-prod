@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import subprocess
+from pathlib import Path
 
 from caerra_prep import Args, Domain, get_recipes_path
 
@@ -44,7 +45,8 @@ def run_inference(args: Args):
     namespace = os.environ.get("CAERRA_NAMESPACE", DEFAULT_NAMESPACE)
     print("Using namespace:", namespace, flush=True)
 
-    recipes = get_recipes_path()
+    # recipes dir lives in the root of the repo
+    recipes = get_recipes_path(Path(__file__), "../../recipes")
     base_conf = recipes / "inference.yaml"
     post_proc = recipes / "defaults/post_processors.yaml"
     var_conf = recipes / "defaults/typed_variables.yaml"
