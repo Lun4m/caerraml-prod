@@ -369,7 +369,7 @@ wheels = [
 [[package]]
 name = "caerra-prep"
 version = "1.0.0"
-source = { directory = "packages/prepare" }
+source = { editable = "packages/prepare" }
 dependencies = [
     { name = "anemoi-datasets", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "anemoi-transform", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
@@ -444,7 +444,7 @@ requires-dist = [
     { name = "anemoi-training", git = "https://github.com/ecmwf/anemoi-core?subdirectory=training&rev=5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d" },
     { name = "anemoi-transform", specifier = "==0.3.1" },
     { name = "anemoi-utils", specifier = "==0.5.2" },
-    { name = "caerra-prep", directory = "packages/prepare" },
+    { name = "caerra-prep", editable = "packages/prepare" },
     { name = "eccodes", specifier = "==2.47.0" },
     { name = "ecmwf-api-client", specifier = "==1.7.0" },
     { name = "netcdf4", specifier = "==1.7.4" },

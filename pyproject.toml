@@ -47,7 +47,7 @@ anemoi-graphs = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9
 torch = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
 torchvision = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" } ]
 triton = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
-caerra_prep = { path = "packages/prepare" }
+caerra_prep = { path = "packages/prepare", editable = true }
 
 [[tool.uv.index]]
 name = "pytorch-cuda"
