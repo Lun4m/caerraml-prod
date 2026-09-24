@@ -14,10 +14,11 @@ dependencies = [
     "pydantic==2.13.1",
     "typing-extensions>=4.12.2",
     "pydantic-core==2.46.1",
+    "click>=8.4.2",
 ]
 
 [project.scripts]
-caerra-prep = "caerra_prep.main:main"
+caerra-prep = "caerra_prep.main:cli"
 
 [build-system]
 requires = ["hatchling"]

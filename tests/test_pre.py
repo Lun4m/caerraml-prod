@@ -1,18 +1,13 @@
 from pathlib import Path
 
-from caerra_prep import Args, PreProcessor
-
-# root of the repository
-ROOT = Path(__file__).parent.parent.resolve()
-RECIPES = ROOT / "recipes"
+from caerra_prep import PreProcessor
+from caerra_prep.main import get_recipes_path, process_date
 
 
 def test_update_recipe(tmp_path: Path):
     tmp_file = tmp_path / "tmp.template"
 
-    date = "2026-01-01"
-    dt = Args.validate_date(date)
-    args = Args(date=dt)
+    date = process_date("2026-01-01", 0)
     domain = "whatever"
 
     content = """dates:
@@ -20,25 +15,31 @@ def test_update_recipe(tmp_path: Path):
     start: asdasd
     end: sdfsdf
 
-    regrid:
-        dataset: my_precious/path.out.zarr
-        mask: sdfsdfsdfsdf
+    input:
+      pipe:
+        anemoi-dataset:
+          dataset: __GENERATED__
+        regrid:
+          mask: __GENERATED__
     """
 
     expected = f"""dates:
     frequency: 3h
-    start: {date}T00:00:00
-    end: {date}T23:00:00
+    start: {date.str}T00:00:00
+    end: {date.str}T23:00:00
 
-    regrid:
-        dataset: {Path(date) / "era5t.zarr"}
-        mask: {domain}.npz
+    input:
+      pipe:
+        anemoi-dataset:
+          dataset: {Path(date.str) / "era5t.zarr"}
+        regrid:
+          mask: {domain}.npz
     """
 
     tmp_file.write_text(content)
 
-    proc = PreProcessor(args)
-    assert proc.recipes == RECIPES
+    proc = PreProcessor(date, overwrite=False)
+    assert proc.recipes == get_recipes_path(__file__, "../recipes")
 
-    out = proc._update_recipe_text(tmp_file, domain, args)
+    out = proc._update_recipe_text(tmp_file, domain)
     assert out == expected

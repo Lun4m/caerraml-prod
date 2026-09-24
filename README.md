@@ -9,10 +9,10 @@ Some notes:
 ### 2. Create virtual environments
 ```term
 # On AC cluster
-bash install.sh AC
+./scripts/install.sh AC
 
 # On AG cluster
-bash install.sh AG
+./scripts/install.sh AG
 ```
 
 The script also exports the following environment variables:
@@ -39,7 +39,7 @@ Update your `.bashrc` file if you want to use different paths.
 ### 3. Prepare the input datasets
 From AC run
 ```term
-bash prepare.sh <date>
+./scripts/prepare.sh
 ```
 This will generate cropped ERA5T datasets (one per region) for the given date.
 
@@ -47,5 +47,5 @@ This will generate cropped ERA5T datasets (one per region) for the given date.
 ### 4. Run the inference
 From AG run
 ```term
-sbatch infer.sh <date>
+./scripts/infer.sh
 ```

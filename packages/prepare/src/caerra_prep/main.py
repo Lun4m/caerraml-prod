@@ -1,11 +1,12 @@
 import enum
+import functools
 import os
 import re
 import subprocess
-from argparse import ArgumentParser, ArgumentTypeError
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Self
+
+import click
 
 # recipe names
 ERA5 = "era5t"
@@ -36,81 +37,20 @@ class Domain(enum.StrEnum):
         return self.value
 
 
-class Args:
-    def __init__(
-        self,
-        date: tuple[str, datetime],
-        n_members: int = N_MEMBERS,
-        members: list[int] | None = None,
-        domains: list[Domain] | None = None,
-        overwrite: bool = False,
-    ):
-        date_str, _date = date
-        self.date_str = date_str
-        self.start = _date.isoformat(timespec="seconds")
-
-        # anemoi-datasets treats end as inclusive, anemoi-inference as exclusive
-        # This should work for both
-        end = _date + timedelta(hours=23)
-        self.end = end.isoformat(timespec="seconds")
-
-        self.domains = set(domains) if domains is not None else set(Domain)
-        self.members = members if members is not None else list(range(n_members))
-
-        self.n_members = n_members
-        self.overwrite = overwrite
-
-    @staticmethod
-    def validate_date(arg: str) -> tuple[str, datetime]:
-        try:
-            date = datetime.fromisoformat(arg)
-            assert date.hour == 0 and date.minute == 0 and date.second == 0, ValueError
-        except ValueError:
-            raise ArgumentTypeError(f"requires format 'YYYY-mm-dd', got '{arg}'")
-        return (arg, date)
-
-    @classmethod
-    def parse(cls) -> Self:
-        ap = ArgumentParser()
-        ap.add_argument(
-            "date",
-            help="Date for which to run the inference (format 'YYYY-mm-dd')",
-            type=cls.validate_date,
-        )
-        ap.add_argument(
-            "--n_members",
-            type=int,
-            default=N_MEMBERS,
-            help="Number of members",
-        )
-        ap.add_argument(
-            "--domains",
-            nargs="+",
-            type=Domain,
-            choices=Domain,
-            default=None,
-            help="Only operate on the given domains (all by default)",
-        )
-        ap.add_argument(
-            "--members",
-            nargs="+",
-            type=int,
-            default=None,
-            help="Only generate the given members",
-        )
-        ap.add_argument(
-            "--overwrite", help="Whether to overwrite the datasets", action="store_true"
-        )
-
-        args = ap.parse_args()
-        return cls(**vars(args))
+class Date:
+    def __init__(self, date: str, start: str, end: str):
+        self.str = date
+        self.start = start
+        self.end = end
 
 
 class PreProcessor:
     def __init__(
         self,
-        args: Args,
+        date: Date,
+        overwrite: bool,
     ):
+        self.date = date
 
         self.masks = Path(os.environ.get(MASKS_PATH, ""))
         self.dsets = Path(os.environ.get(DATASETS_PATH, ""))
@@ -118,29 +58,29 @@ class PreProcessor:
         self.recipes = get_recipes_path(__file__, "../../../../recipes")
 
         # Append date
-        self.dsets /= args.date_str
-        self.overwrite = args.overwrite
+        self.dsets /= date.str
+        self.overwrite = overwrite
 
-    def prepare_datasets(self, args: Args):
+    def prepare_datasets(self):
         # NOTE: ERA5 needs to be the first one, because the other datasets are
         # cropped versions of ERA5
         inputs = [(ERA5, ERA5)] + [(REGRID, domain) for domain in Domain]
 
         for recipe_name, domain in inputs:
             recipe = self.recipes / f"{recipe_name}.template"
-            text = self._update_recipe_text(recipe, domain, args)
+            text = self._update_recipe_text(recipe, domain)
 
             # Create output recipe
             recipe = recipe.with_suffix(".yaml")
             recipe.write_text(text)
             self._create_dataset(recipe, domain)
 
-    def _update_recipe_text(self, recipe: Path, domain: str, args: Args) -> str:
+    def _update_recipe_text(self, recipe: Path, domain: str) -> str:
         text = recipe.read_text()
 
         # Update dates
-        text = re.sub(r"(start:\s).*", rf"\g<1>{args.start}", text)
-        text = re.sub(r"(end:\s).*", rf"\g<1>{args.end}", text)
+        text = re.sub(r"(start:\s).*", rf"\g<1>{self.date.start}", text)
+        text = re.sub(r"(end:\s).*", rf"\g<1>{self.date.end}", text)
 
         # Update mask file
         mask_path = self.masks / f"{domain}.npz"
@@ -148,7 +88,7 @@ class PreProcessor:
 
         # Update input directory based on day
         era5_path = self.dsets / f"{ERA5}.zarr"
-        text = re.sub(r"(dataset:\s).*", rf"\g<1>{era5_path}", text)
+        text = re.sub(r"(\s+dataset:\s).*", rf"\g<1>{era5_path}", text)
         return text
 
     def _create_dataset(self, recipe: Path, domain: str):
@@ -162,8 +102,56 @@ class PreProcessor:
         )
 
 
-def main():
-    args = Args.parse()
+def process_date(value: str | None, lookback: int) -> Date:
+    try:
+        if value is not None:
+            date = datetime.fromisoformat(value)
+        else:
+            date = datetime.now(UTC) - timedelta(days=lookback)
+    except ValueError:
+        raise click.BadParameter(
+            f"requires a valid ISO 8601 format ('YYYY-mm-dd', 'YYYYmmdd'), got '{value}'"
+        )
 
-    processor = PreProcessor(args)
-    processor.prepare_datasets(args)
+    date_str = date.strftime("%Y-%m-%d")
+    start = date.isoformat(timespec="seconds")
+
+    # anemoi-datasets treats end as inclusive, anemoi-inference as exclusive
+    # This should work for both
+    end = date + timedelta(hours=23)
+    end = end.isoformat(timespec="seconds")
+    return Date(date_str, start, end)
+
+
+def validate_and_process_date(
+    ctx: click.Context, _param: click.Option, value: str | None
+) -> Date:
+    return process_date(value, ctx.params["lookback"])
+
+
+def common_cli_params(func):
+    # NOTE: needs to be defined before 'date' to be available in the callback
+    @click.option(
+        "--lookback",
+        default=7,
+        help="Sets the inference run date to 'lookback' days ago. Only used when --date is not set.",
+    )
+    @click.option(
+        "--date",
+        default=None,
+        callback=validate_and_process_date,
+        help="ISO 8601 formatted string of the date for which to run the inference. [default: current day]",
+    )
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@click.command(context_settings={"show_default": True})
+@click.option("--overwrite", is_flag=True)
+@common_cli_params
+def cli(*args, **kwargs):
+    processor = PreProcessor(*args, **kwargs)
+    processor.prepare_datasets()

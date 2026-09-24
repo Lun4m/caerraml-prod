@@ -30,10 +30,11 @@ dependencies = [
     "nvidia-ml-py>=13.610.43",
     "ecmwf-api-client==1.7.0",
     "caerra_prep",
+    "click-extra>=9.3.4",
 ]
 
 [project.scripts]
-caerra-tu-ml = "caerra_tu_ml.main:main"
+caerra-tu-ml = "caerra_tu_ml.main:cli"
 
 [build-system]
 requires = ["hatchling"]
