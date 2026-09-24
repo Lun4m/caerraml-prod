@@ -1,14 +1,18 @@
 from pathlib import Path
 
-from caerra_prep import PreProcessor
-from caerra_prep.main import get_recipes_path, process_date
+from caerra_prep import Paths
+from caerra_prep.main import Date, get_recipes_path, update_recipe_text, validate_date
 
 
 def test_update_recipe(tmp_path: Path):
     tmp_file = tmp_path / "tmp.template"
 
-    date = process_date("2026-01-01", 0)
+    dt = validate_date("2026-01-01")
+    date = Date(dt)
+
     domain = "whatever"
+    masks = Path("")
+    dsets = masks
 
     content = """dates:
     frequency: 3h
@@ -23,23 +27,23 @@ def test_update_recipe(tmp_path: Path):
           mask: __GENERATED__
     """
 
-    expected = f"""dates:
+    expected = """dates:
     frequency: 3h
-    start: {date.str}T00:00:00
-    end: {date.str}T23:00:00
+    start: 2026-01-01T00:00:00
+    end: 2026-01-01T23:00:00
 
     input:
       pipe:
         anemoi-dataset:
-          dataset: {Path(date.str) / "era5t.zarr"}
+          dataset: 2026-01-01/era5t.zarr
         regrid:
-          mask: {domain}.npz
+          mask: whatever.npz
     """
 
     tmp_file.write_text(content)
 
-    proc = PreProcessor(date, overwrite=False)
-    assert proc.recipes == get_recipes_path(__file__, "../recipes")
+    paths = Paths(date, masks, dsets, overwrite=False)
+    assert paths.recipes == get_recipes_path(__file__, "../recipes")
 
-    out = proc._update_recipe_text(tmp_file, domain)
+    out = update_recipe_text(tmp_file, domain, date, paths)
     assert out == expected

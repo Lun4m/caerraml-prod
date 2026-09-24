@@ -5,6 +5,7 @@ import re
 import subprocess
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from subprocess import CalledProcessError
 
 import click
 
@@ -38,95 +39,100 @@ class Domain(enum.StrEnum):
 
 
 class Date:
-    def __init__(self, date: str, start: str, end: str):
-        self.str = date
+    def __init__(self, date: datetime | None, lookback: int = 7):
+        if date is None:
+            date = datetime.now(UTC) - timedelta(days=lookback)
+
+        date_str = date.strftime("%Y-%m-%d")
+        start = date.isoformat(timespec="seconds")
+
+        # anemoi-datasets treats end as inclusive, anemoi-inference as exclusive
+        # This should work for both
+        end = date + timedelta(hours=23)
+        end = end.isoformat(timespec="seconds")
+
+        self.str = date_str
         self.start = start
         self.end = end
 
 
-class PreProcessor:
-    def __init__(
-        self,
-        date: Date,
-        overwrite: bool,
-    ):
-        self.date = date
-
-        self.masks = Path(os.environ.get(MASKS_PATH, ""))
-        self.dsets = Path(os.environ.get(DATASETS_PATH, ""))
+class Paths:
+    def __init__(self, date: Date, masks: Path, dsets: Path, overwrite: bool):
+        self.masks = masks
+        self.dsets = dsets
         # recipes dir lives in the root of the repo
         self.recipes = get_recipes_path(__file__, "../../../../recipes")
 
-        # Append date
+        # Append date to output path
         self.dsets /= date.str
         self.overwrite = overwrite
 
-    def prepare_datasets(self):
-        # NOTE: ERA5 needs to be the first one, because the other datasets are
-        # cropped versions of ERA5
-        inputs = [(ERA5, ERA5)] + [(REGRID, domain) for domain in Domain]
 
-        for recipe_name, domain in inputs:
-            recipe = self.recipes / f"{recipe_name}.template"
-            text = self._update_recipe_text(recipe, domain)
-
-            # Create output recipe
-            recipe = recipe.with_suffix(".yaml")
-            recipe.write_text(text)
-            self._create_dataset(recipe, domain)
-
-    def _update_recipe_text(self, recipe: Path, domain: str) -> str:
-        text = recipe.read_text()
-
-        # Update dates
-        text = re.sub(r"(start:\s).*", rf"\g<1>{self.date.start}", text)
-        text = re.sub(r"(end:\s).*", rf"\g<1>{self.date.end}", text)
-
-        # Update mask file
-        mask_path = self.masks / f"{domain}.npz"
-        text = re.sub(r"(mask:\s).*", rf"\g<1>{mask_path}", text)
-
-        # Update input directory based on day
-        era5_path = self.dsets / f"{ERA5}.zarr"
-        text = re.sub(r"(\s+dataset:\s).*", rf"\g<1>{era5_path}", text)
-        return text
-
-    def _create_dataset(self, recipe: Path, domain: str):
-        output = self.dsets / f"{domain}.zarr"
-        overwrite = "--overwrite" if self.overwrite else ""
-
-        subprocess.run(
-            f"uv run --frozen anemoi-datasets create {recipe} {output} {overwrite}",
-            check=True,
-            shell=True,
-        )
+def send_email_on_error(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except CalledProcessError as e:
+            # TODO: send email on error?
+            pass
 
 
-def process_date(value: str | None, lookback: int) -> Date:
+def update_recipe_text(recipe: Path, domain: str, date: Date, paths: Paths) -> str:
+    text = recipe.read_text()
+
+    # Update dates
+    text = re.sub(r"(start:\s).*", rf"\g<1>{date.start}", text)
+    text = re.sub(r"(end:\s).*", rf"\g<1>{date.end}", text)
+
+    # Update mask file
+    mask_path = paths.masks / f"{domain}.npz"
+    text = re.sub(r"(mask:\s).*", rf"\g<1>{mask_path}", text)
+
+    # Update input directory based on day
+    era5_path = paths.dsets / f"{ERA5}.zarr"
+    text = re.sub(r"(\s+dataset:\s).*", rf"\g<1>{era5_path}", text)
+    return text
+
+
+def create_dataset(recipe: Path, domain: str, paths: Paths):
+    output = paths.dsets / f"{domain}.zarr"
+    overwrite = "--overwrite" if paths.overwrite else ""
+
+    subprocess.run(
+        f"uv run --frozen anemoi-datasets create {recipe} {output} {overwrite}",
+        check=True,
+        shell=True,
+    )
+
+
+def prepare_datasets(date: Date, paths: Paths):
+    # NOTE: ERA5 needs to be the first one, because the other datasets are
+    # cropped versions of ERA5
+    inputs = [(ERA5, ERA5)] + [(REGRID, domain) for domain in Domain]
+
+    for recipe_name, domain in inputs:
+        recipe = paths.recipes / f"{recipe_name}.template"
+        text = update_recipe_text(recipe, domain, date, paths)
+
+        # Create output recipe
+        # TODO: check correctness
+        recipe = (paths.dsets / recipe.name).with_suffix(".yaml")
+        recipe.write_text(text)
+        create_dataset(recipe, domain, paths)
+
+
+def validate_date(value: str | None) -> datetime | None:
+    if value is None:
+        return None
+
     try:
-        if value is not None:
-            date = datetime.fromisoformat(value)
-        else:
-            date = datetime.now(UTC) - timedelta(days=lookback)
+        date = datetime.fromisoformat(value)
     except ValueError:
         raise click.BadParameter(
             f"requires a valid ISO 8601 format ('YYYY-mm-dd', 'YYYYmmdd'), got '{value}'"
         )
-
-    date_str = date.strftime("%Y-%m-%d")
-    start = date.isoformat(timespec="seconds")
-
-    # anemoi-datasets treats end as inclusive, anemoi-inference as exclusive
-    # This should work for both
-    end = date + timedelta(hours=23)
-    end = end.isoformat(timespec="seconds")
-    return Date(date_str, start, end)
-
-
-def validate_and_process_date(
-    ctx: click.Context, _param: click.Option, value: str | None
-) -> Date:
-    return process_date(value, ctx.params["lookback"])
+    return date
 
 
 def common_cli_params(func):
@@ -138,8 +144,9 @@ def common_cli_params(func):
     )
     @click.option(
         "--date",
+        "date_cli",
         default=None,
-        callback=validate_and_process_date,
+        callback=lambda _ctx, _param, val: validate_date(val),
         help="ISO 8601 formatted string of the date for which to run the inference. [default: current day]",
     )
     @functools.wraps(func)
@@ -152,6 +159,9 @@ def common_cli_params(func):
 @click.command(context_settings={"show_default": True})
 @click.option("--overwrite", is_flag=True)
 @common_cli_params
-def cli(*args, **kwargs):
-    processor = PreProcessor(*args, **kwargs)
-    processor.prepare_datasets()
+def cli(date_cli: datetime | None, lookback: int, overwrite: bool):
+    date_obj = Date(date_cli, lookback)
+    masks = Path(os.environ.get(MASKS_PATH, ""))
+    dsets = Path(os.environ.get(DATASETS_PATH, ""))
+    paths = Paths(date_obj, masks, dsets, overwrite)
+    prepare_datasets(date_obj, paths)

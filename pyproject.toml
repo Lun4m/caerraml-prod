@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [project.scripts]
-caerra-tu-ml = "caerra_tu_ml.main:cli"
+caerra-tu-ml = "caerra_tu_ml.main:run_inference"
 
 [build-system]
 requires = ["hatchling"]
@@ -65,3 +65,6 @@ dev = [
 environments = ["sys_platform == 'linux' or sys_platform == 'manylinux'"]
 # Automatically builds
 no-build-isolation-package = ["torch-cluster", "torch-scatter", "torch-sparse", "torch-spline-conv"]
+
+[tool.pytest.ini_options]
+addopts = "-vrP -p no:cacheprovider"

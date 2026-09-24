@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 from collections.abc import Iterable
+from datetime import datetime
 
 import click
 from caerra_prep import Date, Domain, common_cli_params, get_recipes_path
@@ -41,12 +42,40 @@ def sample_seed(
     return seed | (1 << 62)
 
 
+@click.command(context_settings={"show_default": True})
+@click.option(
+    "--n_members",
+    type=int,
+    default=N_MEMBERS,
+    help="Number of members",
+)
+@click.option(
+    "--domain",
+    "domains",
+    multiple=True,
+    type=EnumChoice(Domain),
+    default=None,
+    help="Only operate on the given domains [default: all]",
+)
+@click.option(
+    "--m",
+    "--member",
+    "members",
+    multiple=True,
+    type=int,
+    default=None,
+    help="Only generate the given members. Can be specified multiple times. [default: all]",
+)
+@common_cli_params
 def run_inference(
     n_members: int,
     domains: Iterable[Domain] | None,
     members: list[int] | None,
-    date: Date,
+    date_cli: datetime | None,
+    lookback: int,
 ):
+    date = Date(date_cli, lookback)
+
     domains = set(domains) if domains is not None else set(Domain)
     members = members if members is not None else list(range(n_members))
 
@@ -85,30 +114,3 @@ def run_inference(
                 shell=True,
                 env=env,
             )
-
-
-@click.command(context_settings={"show_default": True})
-@click.option(
-    "--n_members",
-    type=int,
-    default=N_MEMBERS,
-    help="Number of members",
-)
-@click.option(
-    "--domains",
-    multiple=True,
-    type=EnumChoice(Domain),
-    default=None,
-    help="Only operate on the given domains [default: all]",
-)
-@click.option(
-    "-m",
-    "--members",
-    multiple=True,
-    type=int,
-    default=None,
-    help="Only generate the given members. Can be specified multiple times. [default: all]",
-)
-@common_cli_params
-def cli(*args, **kwargs):
-    run_inference(*args, **kwargs)
