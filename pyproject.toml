@@ -29,7 +29,7 @@ dependencies = [
     "triton==3.6.0",
     "nvidia-ml-py>=13.610.43",
     "ecmwf-api-client==1.7.0",
-    "caerra_prep",
+    "caerra_utils",
     "click-extra>=9.3.4",
 ]
 
@@ -48,7 +48,7 @@ anemoi-graphs = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9
 torch = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
 torchvision = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" } ]
 triton = [ { index = "pytorch-cuda", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'"} ]
-caerra_prep = { path = "packages/prepare", editable = true }
+caerra_utils = { path = "packages/caerra-utils", editable = true }
 
 [[tool.uv.index]]
 name = "pytorch-cuda"

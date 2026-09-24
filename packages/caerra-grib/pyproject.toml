@@ -9,7 +9,7 @@ authors = [
 requires-python = ">=3.12, <3.13"
 dependencies = [
     "earthkit-data>=1.2.3",
-    "caerra_prep",
+    "caerra_utils",
 ]
 
 [project.scripts]
@@ -20,10 +20,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
-caerra_prep = { path = "../prepare", editable = true }
+caerra_utils = { path = "../caerra-utils", editable = true }
 
 [[tool.uv.dependency-metadata]]
-name = "caerra_prep"
+name = "caerra_utils"
 version = "1.0.0"
 requires-dist = [
     # Removed anemoi packages since they limit 

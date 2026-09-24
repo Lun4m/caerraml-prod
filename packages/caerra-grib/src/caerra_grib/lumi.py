@@ -10,7 +10,7 @@ from pathlib import Path
 import click
 import earthkit.data as ekd
 import numpy as np
-from caerra_prep.main import Domain
+from caerra_utils.prepare import Domain
 
 VARIABLES_TO_CLIP = ["2r", "tcc"]
 

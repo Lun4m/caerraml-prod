@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [[manifest.dependency-metadata]]
-name = "caerra-prep"
+name = "caerra-utils"
 version = "1.0.0"
 requires-dist = ["zarr==2.17.0", "eccodes==2.47.0", "pyyaml==6.0.3", "pydantic==2.13.1", "typing-extensions>=4.12.2", "pydantic-core==2.46.1", "click>=8.4.2"]
 
@@ -51,20 +51,20 @@ name = "caerra-grib"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "caerra-prep" },
+    { name = "caerra-utils" },
     { name = "earthkit-data" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "caerra-prep", editable = "../prepare" },
+    { name = "caerra-utils", editable = "../caerra-utils" },
     { name = "earthkit-data", specifier = ">=1.2.3" },
 ]
 
 [[package]]
-name = "caerra-prep"
+name = "caerra-utils"
 version = "1.0.0"
-source = { editable = "../prepare" }
+source = { editable = "../caerra-utils" }
 dependencies = [
     { name = "click" },
     { name = "eccodes" },
