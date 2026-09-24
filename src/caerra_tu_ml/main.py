@@ -54,7 +54,7 @@ def sample_seed(
     "domains",
     multiple=True,
     type=EnumChoice(Domain),
-    default=None,
+    default=(),
     help="Only operate on the given domains [default: all]",
 )
 @click.option(
@@ -63,21 +63,21 @@ def sample_seed(
     "members",
     multiple=True,
     type=int,
-    default=None,
+    default=(),
     help="Only generate the given members. Can be specified multiple times. [default: all]",
 )
 @common_cli_params
 def run_inference(
     n_members: int,
-    domains: Iterable[Domain] | None,
-    members: list[int] | None,
+    domains: Iterable[Domain],
+    members: Iterable[int],
     date_cli: datetime | None,
     lookback: int,
 ):
     date = Date(date_cli, lookback)
 
-    domains = set(domains) if domains is not None else set(Domain)
-    members = members if members is not None else list(range(n_members))
+    domains = set(domains) if domains != () else set(Domain)
+    members = members if members != () else list(range(n_members))
 
     os.environ["CAERRA_DATE"] = date.str
     os.environ["N_MEMBERS"] = str(n_members)
