@@ -17,7 +17,7 @@ run() {
 }
 
 run "prepare" \
-    "ssh ac-login \"cd $CAERRA_WORK_DIR; scripts/prepare.sh $rundate\""
+    "ssh ac-login \"cd $CAERRA_WORK_DIR; scripts/prepare.sh --date $rundate\""
 
 run "infer" \
     "ssh ag-login \"cd $CAERRA_WORK_DIR; scripts/parallel_infer.sh $rundate\""

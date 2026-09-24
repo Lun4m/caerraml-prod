@@ -8,8 +8,8 @@ run() {
     sbatch "$@" \
         --output="$CAERRA_LOGS/${domain}_${rundate}_%j.out" \
         scripts/infer.sh \
-        "$rundate" \
-        "$domain"
+        --date "$rundate" \
+        --domain "$domain"
     return $?
 }
 
