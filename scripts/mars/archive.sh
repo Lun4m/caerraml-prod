@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
+# TODO: fix this
 # Usage MARS_archive.sh <output_dir>
 # output_dir is location of inference output
-
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 output_dir" >&2
-    exit 1
-fi
+# if [ $# -ge 1 ]; then
+#     echo "Usage: $0 output_dir" >&2
+#     exit 1
+# fi
 
 module load ecmwf-toolbox/new
 
 output_dir="$1" # Format: .../path/yyyy-mm-dd
+input_domain=$2 # selection of domain
+input_member=$3 # selection of member
 
 # Output data split in an,fc,hl is expected to be here
 output_dir_split=$output_dir/split
@@ -26,15 +28,25 @@ mkdir -p "$list_dir"
 # Common MARS parameters across domains
 database=marsscratch # CHANGE TO marser WHEN GOING PROD
 class=rr
-stream=enda
 expver=prod
 
 rundate=$(basename "$output_dir")
 prev_date=$(date -I -d "$rundate - 1 day")
 
 # For each domain, generate MARS request, then archive it
-for domain in carra-east carra-west cerra; do
+domains=("carra-east" "carra-west" "cerra")
+for domain in "${domains[@]}"; do
+    # Filter by user input if provided
+    if [[ ! -z $input_domain ]] && [[ $domain != "$input_domain" ]]; then
+        continue
+    fi
+
     for member in {00..10}; do
+        # Filter by user input if provided
+        if [[ ! -z $input_member ]] && [[ $member != "$input_member" ]]; then
+            continue
+        fi
+
         list_file=$list_dir/${domain}_${member}.mars
 
         # Set domain specific parameters
