@@ -1,0 +1,10 @@
+# minute hour day month weekday command
+
+12 07 * * * ssh ac-login "cd \$CAERRA_WORK_DIR; scripts/prepare.sh > \$CAERRA_LOGS/prepare_$(date -I).log 2>&1"
+
+# Run inference after 5 mins
+# NOTE: not piping logs here because it would only capture the output of sbatch, not the infer script
+17 07 * * * ssh ag-login "cd \$CAERRA_WORK_DIR; sbatch --output=$logs/\%x_\%j.out scripts/infer.sh"
+
+# Archive after 3 hours and 45 minutes 
+02 11 * * * ssh ac-login "cd \$CAERRA_WORK_DIR; mars/wrapper.sh > \$CAERRA_LOGS/archive_$(date -I).log 2>&1"

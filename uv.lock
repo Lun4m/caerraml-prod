@@ -110,8 +110,8 @@ tri = [
 
 [[package]]
 name = "anemoi-inference"
-version = "0.8.4.dev145+g980bb2fbf"
-source = { git = "https://github.com/ecmwf/anemoi-inference?branch=feat%2Fcore-c3s2-361b-prod#980bb2fbfa386fbbb1db21edff3a2880b911cfb9" }
+version = "0.8.4.dev146+g6c74ae327"
+source = { git = "https://github.com/ecmwf/anemoi-inference?branch=feat%2Fcore-c3s2-361b-prod#6c74ae327ca049b13d8e9132650a275637b58988" }
 dependencies = [
     { name = "anemoi-datasets", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },
     { name = "anemoi-transform", marker = "sys_platform == 'linux' or sys_platform == 'manylinux'" },

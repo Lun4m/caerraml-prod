@@ -17,7 +17,7 @@ Some notes:
 
 The script also exports the following environment variables:
 <ul>
-For "static" auxiliary files (these four directories should contain one file per domain)
+For "static" auxiliary files (these four directories should contain one file per domain):
 <ul>
 <li><code>CAERRA_MASKS_PATH</code>: path to the interpolation matrices (in NPZ format)</li>
 <li><code>CAERRA_CKPTS_PATH</code>: path to the inference checkpoints</li>
@@ -27,10 +27,18 @@ For "static" auxiliary files (these four directories should contain one file per
 </ul>
 <br>
 <ul>
-For generated files
+For generated files:
 <ul>
 <li><code>CAERRA_OUTPUTS_PATH</code>: directory of the output grib files</li>
 <li><code>CAERRA_DATASETS_PATH</code>: directory of the input anemoi datasets</li>
+<li><code>CAERRA_LOGS</code>: where the log files for the different tasks will be saved</li>
+</ul>
+</ul>
+<br>
+<ul>
+And finally:
+<ul>
+<li><code>CAERRA_WORK_DIR</code>: location of this repository on the filesystem
 </ul>
 </ul>
 
@@ -39,13 +47,24 @@ Update your `.bashrc` file if you want to use different paths.
 ### 3. Prepare the input datasets
 From AC run
 ```term
-./scripts/prepare.sh
+scripts/prepare.sh
 ```
 This will generate cropped ERA5T datasets (one per region) for the given date.
-
 
 ### 4. Run the inference
 From AG run
 ```term
-./scripts/infer.sh
+scripts/infer.sh
+```
+
+### 5. Archiving
+From AC run 
+```term
+mars/wrapper.sh /path/to/the/outputs
+```
+
+### 6. CRON job
+For simplicity we provide a crontab file that executes the whole pipeline. It can be loaded with 
+```term
+crontab cron/cron.jobs
 ```

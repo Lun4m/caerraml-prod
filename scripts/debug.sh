@@ -1,14 +1,17 @@
 #!/bin/bash
-#SBATCH --job-name=caerra-tu-ml
-#SBATCH --output=logs/%x_%j.out
-#SBATCH --qos=ng
+#SBATCH --job-name=debug
+#SBATCH --output=logs/%x.out
+#SBATCH --qos=dg
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=8
-#SBATCH --time=04:00:00
+#SBATCH --time=00:30:00
 #SBATCH --hint=nomultithread
 
 set -e
+
+domain=$1
+rundate=$2
 
 module purge
 module load prgenv/gnu
@@ -17,4 +20,7 @@ module load ecmwf-toolbox/2026.04.0.0
 module load python3/3.12.11
 module load uv
 
-uv run --frozen caerra-infer
+uv run --frozen caerra-infer \
+    --domain "$domain" \
+    --member 0 \
+    --date "$rundate"
