@@ -59,12 +59,14 @@ class Date:
 class Paths:
     def __init__(self, date: Date, masks: Path, dsets: Path, overwrite: bool):
         self.masks = masks
-        self.dsets = dsets
+
+        # Append date to output path and create directory
+        self.dsets = dsets / date.str
+        self.dsets.mkdir(exist_ok=True)
+
         # recipes dir lives in the root of the repo
         self.recipes = get_recipes_path(__file__, "../../../../recipes")
 
-        # Append date to output path
-        self.dsets /= date.str
         self.overwrite = overwrite
 
 
@@ -111,6 +113,7 @@ def create_dataset(recipe: Path, domain: str, paths: Paths):
     )
 
 
+# TODO: the logic here if datasets/recipes already exist is a bit inconsistent
 def prepare_datasets(date: Date, paths: Paths):
     # NOTE: ERA5 needs to be the first one, because the other datasets are
     # cropped versions of ERA5
