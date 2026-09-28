@@ -97,6 +97,11 @@ def update_recipe_text(recipe: Path, domain: str, date: Date, paths: Paths) -> s
 
 def create_dataset(recipe: Path, domain: str, paths: Paths):
     output = paths.dsets / f"{domain}.zarr"
+
+    if output.exists() and not paths.overwrite:
+        print(f"Skipping {output} because it already exists.")
+        return
+
     overwrite = "--overwrite" if paths.overwrite else ""
 
     subprocess.run(
