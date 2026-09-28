@@ -71,11 +71,11 @@ def run_inference(
     n_members: int,
     domains: Iterable[Domain],
     members: Iterable[int],
-    date_cli: datetime | None,
-    lookback: int,
+    date: Date,
 ):
-    date = Date(date_cli, lookback)
-
+    print(date.str)
+    print(date.start, date.end)
+    exit()
     domains = set(domains) if domains != () else set(Domain)
     members = members if members != () else list(range(n_members))
 

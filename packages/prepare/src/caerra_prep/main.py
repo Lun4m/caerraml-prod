@@ -18,6 +18,7 @@ MASKS_PATH = "CAERRA_MASKS_PATH"
 DATASETS_PATH = "CAERRA_DATASETS_PATH"
 
 N_MEMBERS = 11
+DEFAULT_LOOKBACK = 8  # days
 
 
 def get_recipes_path(file: str, target: str) -> Path:
@@ -39,10 +40,7 @@ class Domain(enum.StrEnum):
 
 
 class Date:
-    def __init__(self, date: datetime | None, lookback: int = 7):
-        if date is None:
-            date = datetime.now(UTC) - timedelta(days=lookback)
-
+    def __init__(self, date: datetime):
         date_str = date.strftime("%Y-%m-%d")
         start = date.isoformat(timespec="seconds")
 
@@ -129,16 +127,27 @@ def prepare_datasets(date: Date, paths: Paths):
         create_dataset(recipe, paths.overwrite)
 
 
-def validate_date(value: str | None) -> datetime | None:
-    if value is None:
-        return None
-
+def validate_date(value: str | None, lookback: int = DEFAULT_LOOKBACK) -> Date:
     try:
-        date = datetime.fromisoformat(value)
+        if value is None:
+            date = datetime.now(UTC) - timedelta(days=lookback)
+        else:
+            date = datetime.fromisoformat(value)
     except ValueError:
         raise click.BadParameter(
             f"requires a valid ISO 8601 format ('YYYY-mm-dd', 'YYYYmmdd'), got '{value}'"
         )
+
+    return Date(date)
+
+
+def validate_with_lookback(
+    ctx: click.Context, _param: click.Parameter, value: str | None
+) -> Date:
+    date = validate_date(value, ctx.params["lookback"])
+    # We delete it here because we don't need it anymore
+    # and we don't want to have it in every command function signature
+    del ctx.params["lookback"]
     return date
 
 
@@ -146,14 +155,13 @@ def common_cli_params(func):
     # NOTE: needs to be defined before 'date' to be available in the callback
     @click.option(
         "--lookback",
-        default=8,
+        default=DEFAULT_LOOKBACK,
         help="Sets the inference run date to 'lookback' days ago. Only used when --date is not set.",
     )
     @click.option(
         "--date",
-        "date_cli",
         default=None,
-        callback=lambda _ctx, _param, val: validate_date(val),
+        callback=validate_with_lookback,
         help="ISO 8601 formatted string of the date for which to run the inference. [default: current day]",
     )
     @functools.wraps(func)
@@ -166,9 +174,8 @@ def common_cli_params(func):
 @click.command(context_settings={"show_default": True})
 @click.option("--overwrite", is_flag=True)
 @common_cli_params
-def cli(date_cli: datetime | None, lookback: int, overwrite: bool):
-    date_obj = Date(date_cli, lookback)
+def cli(date: Date, overwrite: bool):
     masks = Path(os.environ.get(MASKS_PATH, ""))
     dsets = Path(os.environ.get(DATASETS_PATH, ""))
-    paths = Paths(date_obj, masks, dsets, overwrite)
-    prepare_datasets(date_obj, paths)
+    paths = Paths(date, masks, dsets, overwrite)
+    prepare_datasets(date, paths)
