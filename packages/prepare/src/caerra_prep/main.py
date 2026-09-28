@@ -80,7 +80,7 @@ def send_email_on_error(func):
             pass
 
 
-def update_recipe_text(recipe: Path, domain: str, date: Date, paths: Paths) -> str:
+def update_recipe_content(recipe: Path, domain: str, date: Date, paths: Paths) -> str:
     text = recipe.read_text()
 
     # Update dates
@@ -97,17 +97,17 @@ def update_recipe_text(recipe: Path, domain: str, date: Date, paths: Paths) -> s
     return text
 
 
-def create_dataset(recipe: Path, domain: str, paths: Paths):
-    output = paths.dsets / f"{domain}.zarr"
+def create_dataset(recipe: Path, overwrite: bool):
+    # Create output dataset
+    output = recipe.with_suffix(".zarr")
 
-    if output.exists() and not paths.overwrite:
+    if output.exists() and not overwrite:
         print(f"Skipping {output} because it already exists.")
         return
 
-    overwrite = "--overwrite" if paths.overwrite else ""
-
+    over = "--overwrite" if overwrite else ""
     subprocess.run(
-        f"uv run --frozen anemoi-datasets create {recipe} {output} {overwrite}",
+        f"uv run --frozen anemoi-datasets create {recipe} {output} {over}",
         check=True,
         shell=True,
     )
@@ -121,13 +121,12 @@ def prepare_datasets(date: Date, paths: Paths):
 
     for recipe_name, domain in inputs:
         recipe = paths.recipes / f"{recipe_name}.template"
-        text = update_recipe_text(recipe, domain, date, paths)
+        content = update_recipe_content(recipe, domain, date, paths)
 
         # Create output recipe
-        # TODO: check correctness
-        recipe = (paths.dsets / recipe.name).with_suffix(".yaml")
-        recipe.write_text(text)
-        create_dataset(recipe, domain, paths)
+        recipe = paths.dsets / f"{domain}.yaml"
+        recipe.write_text(content)
+        create_dataset(recipe, paths.overwrite)
 
 
 def validate_date(value: str | None) -> datetime | None:
