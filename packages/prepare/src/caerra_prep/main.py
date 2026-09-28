@@ -146,7 +146,7 @@ def common_cli_params(func):
     # NOTE: needs to be defined before 'date' to be available in the callback
     @click.option(
         "--lookback",
-        default=7,
+        default=8,
         help="Sets the inference run date to 'lookback' days ago. Only used when --date is not set.",
     )
     @click.option(
