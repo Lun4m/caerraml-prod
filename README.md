@@ -66,5 +66,5 @@ mars/wrapper.sh /path/to/the/outputs
 ### 6. CRON job
 For simplicity we provide a crontab file that executes the whole pipeline. It can be loaded with 
 ```term
-crontab cron/cron.jobs
+crontab cron/pipeline.jobs
 ```

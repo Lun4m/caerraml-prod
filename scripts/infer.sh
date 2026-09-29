@@ -17,4 +17,11 @@ module load ecmwf-toolbox/2026.04.0.0
 module load python3/3.12.11
 module load uv
 
-uv run --frozen caerra-infer
+if [ -z "${1+present}" ]; then
+    date_arg=""
+else
+    date_arg="--date $1"
+fi
+
+# shellcheck disable=SC2086
+uv run --frozen caerra-infer $date_arg
