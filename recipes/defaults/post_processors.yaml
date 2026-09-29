@@ -47,3 +47,8 @@ post_processors:
       param: tcc
       minimum: 0.0
       maximum: 100.0
+
+  - min_max_clipper:
+      target: 2t
+      min: mn2t
+      max: mx2t
