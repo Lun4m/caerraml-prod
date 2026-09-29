@@ -6,6 +6,7 @@ from collections.abc import Iterable
 
 import click
 from caerra_prep import Date, Domain, common_cli_params, get_recipes_path
+from caerra_prep.main import validate_date
 from click_extra import EnumChoice
 
 DEFAULT_NAMESPACE = "production-v1"
@@ -76,9 +77,11 @@ def run_inference(
     n_members: int,
     domains: Iterable[Domain],
     members: Iterable[int],
-    date: Date,
+    date_cli: str | None,
+    lookback: int,
     debug: bool,
 ):
+    date = validate_date(date_cli, lookback)
     domains = set(domains) if domains != () else set(Domain)
     members = members if members != () else list(range(n_members))
 

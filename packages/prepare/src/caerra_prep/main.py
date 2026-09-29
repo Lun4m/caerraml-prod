@@ -142,16 +142,6 @@ def validate_date(value: str | None, lookback: int = DEFAULT_LOOKBACK) -> Date:
     return Date(date)
 
 
-def validate_with_lookback(
-    ctx: click.Context, _param: click.Parameter, value: str | None
-) -> Date:
-    date = validate_date(value, ctx.params["lookback"])
-    # We delete it here because we don't need it anymore
-    # and we don't want to have it in every command function signature
-    del ctx.params["lookback"]
-    return date
-
-
 def common_cli_params(func):
     # NOTE: needs to be defined before 'date' to be available in the callback
     @click.option(
@@ -161,8 +151,8 @@ def common_cli_params(func):
     )
     @click.option(
         "--date",
+        "date_cli",
         default=None,
-        callback=validate_with_lookback,
         help="ISO 8601 formatted string of the date for which to run the inference. [default: current day]",
     )
     @functools.wraps(func)
@@ -175,7 +165,8 @@ def common_cli_params(func):
 @click.command(context_settings={"show_default": True})
 @click.option("--overwrite", is_flag=True)
 @common_cli_params
-def cli(date: Date, overwrite: bool):
+def cli(date_cli: str | None, lookback: int, overwrite: bool):
+    date = validate_date(date_cli, lookback)
     masks = Path(os.environ.get(MASKS_PATH, ""))
     dsets = Path(os.environ.get(DATASETS_PATH, ""))
     paths = Paths(date, masks, dsets, overwrite)
