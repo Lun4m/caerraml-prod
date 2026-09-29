@@ -138,6 +138,7 @@ def validate_date(value: str | None, lookback: int = DEFAULT_LOOKBACK) -> Date:
             f"requires a valid ISO 8601 format ('YYYY-mm-dd', 'YYYYmmdd'), got '{value}'"
         )
 
+    date = date.replace(hour=0, minute=0, second=0, microsecond=0)
     return Date(date)
 
 

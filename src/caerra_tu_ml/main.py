@@ -3,7 +3,6 @@ import json
 import os
 import subprocess
 from collections.abc import Iterable
-from datetime import datetime
 
 import click
 from caerra_prep import Date, Domain, common_cli_params, get_recipes_path
@@ -66,18 +65,30 @@ def sample_seed(
     default=(),
     help="Only generate the given members. Can be specified multiple times. [default: all]",
 )
+@click.option(
+    "--debug",
+    is_flag=True,
+    type=bool,
+    help="Debug inputs to the command",
+)
 @common_cli_params
 def run_inference(
     n_members: int,
     domains: Iterable[Domain],
     members: Iterable[int],
     date: Date,
+    debug: bool,
 ):
-    print(date.str)
-    print(date.start, date.end)
-    exit()
     domains = set(domains) if domains != () else set(Domain)
     members = members if members != () else list(range(n_members))
+
+    if debug:
+        print("date", date.str)
+        print("start date", date.start)
+        print("end date", date.end)
+        print("domains", domains)
+        print("members", members)
+        exit(0)
 
     os.environ["CAERRA_DATE"] = date.str
     os.environ["N_MEMBERS"] = str(n_members)
