@@ -17,7 +17,7 @@ if [ $# -ge 2 ]; then
 fi
 
 if [ -z "${1+present}" ]; then
-    input_date=$(date -I -d "8 days ago")
+    input_date=$(date -I -d "7 days ago")
 else
     input_date="$1"
 fi
