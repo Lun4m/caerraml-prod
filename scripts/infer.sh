@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=caerra-tu-ml
+#SBATCH --job-name=inference
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --qos=ng
 #SBATCH --ntasks=1
