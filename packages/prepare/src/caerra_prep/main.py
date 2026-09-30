@@ -18,7 +18,7 @@ MASKS_PATH = "CAERRA_MASKS_PATH"
 DATASETS_PATH = "CAERRA_DATASETS_PATH"
 
 N_MEMBERS = 11
-DEFAULT_LOOKBACK = 8  # days
+DEFAULT_LOOKBACK = 7  # days
 
 
 def get_recipes_path(file: str, target: str) -> Path:
