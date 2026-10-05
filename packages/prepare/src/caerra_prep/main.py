@@ -18,16 +18,6 @@ MASKS_PATH = "CAERRA_MASKS_PATH"
 DATASETS_PATH = "CAERRA_DATASETS_PATH"
 
 N_MEMBERS = 11
-DEFAULT_LOOKBACK = 7  # days
-
-
-def get_recipes_path(file: str, target: str) -> Path:
-    """
-    file:   path to the file calling this function (i.e., __file__)
-    target: relative path to the recipes directory from 'file' parent directory
-    """
-    base = Path(file).parent
-    return (base / target).resolve()
 
 
 class Domain(enum.StrEnum):
@@ -55,7 +45,7 @@ class Date:
 
 
 class Paths:
-    def __init__(self, date: Date, masks: Path, dsets: Path, overwrite: bool):
+    def __init__(self, date: Date, masks: Path, dsets: Path):
         self.masks = masks
 
         # Append date to output path and create directory
@@ -65,7 +55,53 @@ class Paths:
         # recipes dir lives in the root of the repo
         self.recipes = get_recipes_path(__file__, "../../../../recipes")
 
-        self.overwrite = overwrite
+
+def get_production_delay() -> int:
+    default_delay = 7  # days
+
+    if delay := os.environ.get("CAERRA_PROD_DELAY"):
+        return int(delay)
+
+    return default_delay
+
+
+def validate_date(value: str | None) -> Date:
+    try:
+        if value is None:
+            delay = get_production_delay()
+            date = datetime.now(UTC) - timedelta(days=delay)
+        else:
+            date = datetime.fromisoformat(value)
+    except ValueError:
+        raise click.BadParameter(
+            f"requires a valid ISO 8601 format ('YYYY-mm-dd', 'YYYYmmdd'), got '{value}'"
+        )
+
+    date = date.replace(hour=0, minute=0, second=0, microsecond=0)
+    return Date(date)
+
+
+def common_cli_params(func):
+    @click.option(
+        "--date",
+        default=None,
+        callback=lambda _ctx, _param, val: validate_date(val),
+        help="ISO 8601 formatted string of the date for which to run the inference. [default: current day]",
+    )
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def get_recipes_path(file: str, target: str) -> Path:
+    """
+    file:   path to the file calling this function (i.e., __file__)
+    target: relative path to the recipes directory from 'file' parent directory
+    """
+    base = Path(file).parent
+    return (base / target).resolve()
 
 
 def send_email_on_error(func):
@@ -112,7 +148,7 @@ def create_dataset(recipe: Path, overwrite: bool):
 
 
 # TODO: the logic here if datasets/recipes already exist is a bit inconsistent
-def prepare_datasets(date: Date, paths: Paths):
+def prepare_datasets(date: Date, paths: Paths, overwrite: bool):
     # NOTE: ERA5 needs to be the first one, because the other datasets are
     # cropped versions of ERA5
     inputs = [(ERA5, ERA5)] + [(REGRID, domain) for domain in Domain]
@@ -124,50 +160,14 @@ def prepare_datasets(date: Date, paths: Paths):
         # Create output recipe
         recipe = paths.dsets / f"{domain}.yaml"
         recipe.write_text(content)
-        create_dataset(recipe, paths.overwrite)
-
-
-def validate_date(value: str | None, lookback: int = DEFAULT_LOOKBACK) -> Date:
-    try:
-        if value is None:
-            date = datetime.now(UTC) - timedelta(days=lookback)
-        else:
-            date = datetime.fromisoformat(value)
-    except ValueError:
-        raise click.BadParameter(
-            f"requires a valid ISO 8601 format ('YYYY-mm-dd', 'YYYYmmdd'), got '{value}'"
-        )
-
-    date = date.replace(hour=0, minute=0, second=0, microsecond=0)
-    return Date(date)
-
-
-def common_cli_params(func):
-    # NOTE: needs to be defined before 'date' to be available in the callback
-    @click.option(
-        "--lookback",
-        default=DEFAULT_LOOKBACK,
-        help="Sets the inference run date to 'lookback' days ago. Only used when --date is not set.",
-    )
-    @click.option(
-        "--date",
-        "date_cli",
-        default=None,
-        help="ISO 8601 formatted string of the date for which to run the inference. [default: current day]",
-    )
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    return wrapper
+        create_dataset(recipe, overwrite)
 
 
 @click.command(context_settings={"show_default": True})
 @click.option("--overwrite", is_flag=True)
 @common_cli_params
-def cli(date_cli: str | None, lookback: int, overwrite: bool):
-    date = validate_date(date_cli, lookback)
+def cli(date: Date, overwrite: bool):
     masks = Path(os.environ.get(MASKS_PATH, ""))
     dsets = Path(os.environ.get(DATASETS_PATH, ""))
-    paths = Paths(date, masks, dsets, overwrite)
-    prepare_datasets(date, paths)
+    paths = Paths(date, masks, dsets)
+    prepare_datasets(date, paths, overwrite)

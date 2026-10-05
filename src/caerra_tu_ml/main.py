@@ -2,11 +2,11 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 from collections.abc import Iterable
 
 import click
 from caerra_prep import Date, Domain, common_cli_params, get_recipes_path
-from caerra_prep.main import validate_date
 from click_extra import EnumChoice
 
 DEFAULT_NAMESPACE = "production-v1"
@@ -77,11 +77,9 @@ def run_inference(
     n_members: int,
     domains: Iterable[Domain],
     members: Iterable[int],
-    date_cli: str | None,
-    lookback: int,
+    date: Date,
     debug: bool,
 ):
-    date = validate_date(date_cli, lookback)
     domains = set(domains) if domains != () else set(Domain)
     members = members if members != () else list(range(n_members))
 
@@ -91,7 +89,7 @@ def run_inference(
         print("end date", date.end)
         print("domains", domains)
         print("members", members)
-        exit(0)
+        sys.exit()
 
     os.environ["CAERRA_DATE"] = date.str
     os.environ["N_MEMBERS"] = str(n_members)
