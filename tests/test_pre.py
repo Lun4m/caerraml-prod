@@ -1,14 +1,19 @@
 from pathlib import Path
 
 from caerra_prep import Paths
-from caerra_prep.main import Date, get_recipes_path, update_recipe_text, validate_date
+from caerra_prep.main import (
+    get_recipes_path,
+    update_recipe_content,
+    validate_date,
+)
+
+RECIPES_PATH = get_recipes_path(__file__, "../recipes")
 
 
 def test_update_recipe(tmp_path: Path):
     tmp_file = tmp_path / "tmp.template"
 
-    dt = validate_date("2026-01-01")
-    date = Date(dt)
+    date = validate_date("2026-01-01")
 
     domain = "whatever"
     masks = Path("")
@@ -16,8 +21,8 @@ def test_update_recipe(tmp_path: Path):
 
     content = """dates:
     frequency: 3h
-    start: asdasd
-    end: sdfsdf
+    start: __GENERATED__
+    end: __GENERATED__
 
     input:
       pipe:
@@ -42,8 +47,8 @@ def test_update_recipe(tmp_path: Path):
 
     tmp_file.write_text(content)
 
-    paths = Paths(date, masks, dsets, overwrite=False)
-    assert paths.recipes == get_recipes_path(__file__, "../recipes")
+    paths = Paths(date, masks, dsets)
+    assert paths.recipes == RECIPES_PATH
 
-    out = update_recipe_text(tmp_file, domain, date, paths)
+    out = update_recipe_content(tmp_file, domain, date, paths)
     assert out == expected
