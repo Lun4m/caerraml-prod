@@ -16,11 +16,7 @@ if [ $# -ge 2 ]; then
     exit 1
 fi
 
-if [ -z "${1+present}" ]; then
-    input_date=$(date -I -d "7 days ago")
-else
-    input_date="$1"
-fi
+input_date=${1:-$(date -I -d "6 days ago")}
 
 # 2. Check strict string format
 if [[ ! "$input_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
@@ -43,8 +39,8 @@ if [[ ! -d $output_dir ]]; then
 fi
 
 # ===== Separate an,fc,hl files ============
-echo "$CAERRA_WORK_DIR/mars/split_output.sh" "$output_dir"
-time "$CAERRA_WORK_DIR/mars/split_output.sh" "$output_dir" || exit 1
+echo "$CAERRA_WORK_DIR/scripts/mars/split_output.sh" "$output_dir"
+time "$CAERRA_WORK_DIR/scripts/mars/split_output.sh" "$output_dir" || exit 1
 
 # TODO:
 # ===== Run grib-check ============
@@ -56,8 +52,8 @@ time "$CAERRA_WORK_DIR/mars/split_output.sh" "$output_dir" || exit 1
 # $CAERRA_WORK_DIR/monitoring/check_data_range.py
 
 # ===== Archive to MARS =============
-echo "$CAERRA_WORK_DIR/mars/archive.sh" "$output_dir"
-time "$CAERRA_WORK_DIR/mars/archive.sh" "$output_dir" || exit 1
+echo "$CAERRA_WORK_DIR/scripts/mars/archive.sh" "$output_dir"
+time "$CAERRA_WORK_DIR/scripts/mars/archive.sh" "$output_dir" || exit 1
 
 # TODO:
 # ==== Check archived data =========

@@ -3,7 +3,9 @@ import json
 import os
 import subprocess
 import sys
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
+from enum import Enum
+from typing import Any
 
 import click
 from caerra_prep import Date, Domain, common_cli_params, get_recipes_path
@@ -42,6 +44,16 @@ def sample_seed(
     return seed | (1 << 62)
 
 
+def parse_comma_separated[U](
+    value: str | None, type_: Callable[[str], U]
+) -> Iterable[U] | None:
+    if value is None:
+        return None
+
+    split = value.split(",")
+    return list(dict.fromkeys(map(type_, split)))
+
+
 @click.command(context_settings={"show_default": True})
 @click.option(
     "--n_members",
@@ -50,21 +62,18 @@ def sample_seed(
     help="Number of members",
 )
 @click.option(
-    "--domain",
-    "domains",
-    multiple=True,
-    type=EnumChoice(Domain),
-    default=(),
-    help="Only operate on the given domains [default: all]",
+    "--domains",
+    type=str,
+    default=None,
+    callback=lambda _ctx, _param, val: parse_comma_separated(val, Domain),
+    help=f"Comma separated list of domains for which to run the inference. Valid choices are: {tuple(Domain)} [default: all]",
 )
 @click.option(
-    "--m",
-    "--member",
-    "members",
-    multiple=True,
-    type=int,
-    default=(),
-    help="Only generate the given members. Can be specified multiple times. [default: all]",
+    "--members",
+    type=str,
+    default=None,
+    callback=lambda _ctx, _param, val: parse_comma_separated(val, int),
+    help="Only generate the given comma separated list of members. [default: 0 to n_members]",
 )
 @click.option(
     "--debug",
@@ -75,13 +84,13 @@ def sample_seed(
 @common_cli_params
 def run_inference(
     n_members: int,
-    domains: Iterable[Domain],
-    members: Iterable[int],
+    domains: list[Domain] | None,
+    members: list[int] | None,
     date: Date,
     debug: bool,
 ):
-    domains = set(domains) if domains != () else set(Domain)
-    members = members if members != () else list(range(n_members))
+    domains = domains if domains is not None else list(Domain)
+    members = members if members is not None else list(range(n_members))
 
     if debug:
         print("date", date.str)
