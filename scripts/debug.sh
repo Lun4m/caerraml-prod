@@ -10,8 +10,8 @@
 
 set -e
 
-domain=$1
-rundate=$2
+rundate=$1
+domain=$2
 
 module purge
 module load prgenv/gnu

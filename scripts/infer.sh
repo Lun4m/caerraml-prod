@@ -4,7 +4,7 @@
 #SBATCH --qos=ng
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-gpu=8
 #SBATCH --time=04:00:00
 #SBATCH --hint=nomultithread
 
@@ -17,11 +17,8 @@ module load ecmwf-toolbox/2026.04.0.0
 module load python3/3.12.11
 module load uv
 
-if [ -z "${1+present}" ]; then
-    date_arg=""
-else
-    date_arg="--date $1"
-fi
+rundate=${1:-$(date -I -d "$CAERRA_PROD_DELAY days ago")}
+domain=${2:-"cerra,carra-east,carra-west"}
 
 # shellcheck disable=SC2086
-uv run --frozen caerra-infer $date_arg
+uv run --frozen caerra-infer --date $rundate --domain $domain
