@@ -51,6 +51,13 @@ for domain in carra-east carra-west cerra; do
             [ "$domain" = "carra-west" ] && origin="no-ar-ai-cw"
         fi
 
+        if [[ $member == "00" ]]; then
+            stream=oper
+        else
+            stream=enda
+        fi
+        echo $stream
+
         sfc_fc_prev_file="${output_dir_split}/${domain}_m${member}_sfc_fc_prev.grib2"
         sfc_fc_file="${output_dir_split}/${domain}_m${member}_sfc_fc.grib2"
         sfc_an_file="${output_dir_split}/${domain}_m${member}_sfc_an.grib2"
