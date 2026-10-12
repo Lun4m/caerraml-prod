@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=8
-#SBATCH --time=04:00:00
+#SBATCH --time=01:40:00
 #SBATCH --hint=nomultithread
 
 set -e
@@ -21,4 +21,4 @@ rundate=${1:-$(date -I -d "$CAERRA_PROD_DELAY days ago")}
 domain=${2:-"cerra,carra-east,carra-west"}
 
 # shellcheck disable=SC2086
-uv run --frozen caerra-infer --date $rundate --domain $domain
+uv run --frozen caerra-infer --date $rundate --domains $domain

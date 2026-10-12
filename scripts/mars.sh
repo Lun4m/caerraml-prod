@@ -12,11 +12,11 @@ set -euo pipefail
 # 1. Check if an argument was provided
 if [ $# -ge 2 ]; then
     echo "Error: too many arguments." >&2
-    echo "Usage: $0 (YYYY-MM-DD, defaults to 8 days ago)" >&2
+    echo "Usage: $0 (YYYY-MM-DD, defaults to \$CAERRA_PROD_DELAY days ago)" >&2
     exit 1
 fi
 
-input_date=${1:-$(date -I -d "6 days ago")}
+input_date=${1:-$(date -I -d "$CAERRA_PROD_DELAY days ago")}
 
 # 2. Check strict string format
 if [[ ! "$input_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
