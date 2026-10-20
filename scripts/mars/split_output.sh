@@ -11,7 +11,7 @@ fi
 gribs_path="$1" # Format: .../path/yyyy-mm-dd
 
 if [[ ! -d $gribs_path ]]; then
-    echo "Directory $gribs_path does not exist!"
+    echo "Directory $gribs_path does not exist!" >&2
     exit 1
 fi
 
@@ -25,7 +25,7 @@ for domain in carra-east carra-west cerra; do
         input_file=$gribs_path/$filename.grib2
 
         if [[ ! -f $input_file ]]; then
-            echo "Input file $input_file does not exist!"
+            echo "Input file $input_file does not exist!" >&2
             exit 1
         fi
 

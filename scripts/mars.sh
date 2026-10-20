@@ -34,7 +34,7 @@ fi
 output_dir=$CAERRA_OUTPUTS_PATH/$input_date
 
 if [[ ! -d $output_dir ]]; then
-    echo "Directory $output_dir does not exist!"
+    echo "Directory $output_dir does not exist!" >&2
     exit 1
 fi
 

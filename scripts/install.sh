@@ -1,16 +1,19 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -euo pipefail
 
+THIS_SCRIPT=$(dirname "$0")
+
 # Function that writes an rc file with CAERRA specific env vars
 write_rc() {
-    rcfile=$1
-    echo "Exporting environment variables to $rcfile"
+    local rc=$1
+    echo "Exporting environment variables to $rc"
 
-    path_to_script=$(dirname "$0")
-    work_dir=$(realpath "$path_to_script"/..)
+    local work_dir
+    # script lives in work_dir/scripts
+    work_dir=$(realpath "$THIS_SCRIPT"/..)
 
-    cat >"$rcfile" <<EOF
+    cat >"$rc" <<EOF
 # Centralize uv cache
 export UV_CACHE_DIR=\$PERM/.cache/uv
 
@@ -35,23 +38,23 @@ if [ -z "$1" ]; then
 elif [ "$1" == $flag ]; then
     overwrite=true
 else
-    echo "Invalid argument: $1"
-    echo "Usage: $0 ($flag)"
+    echo "Invalid argument: $1" >&2
+    echo "Usage: $0 ($flag)" >&2
     exit 1
 fi
 
-rcfile="\$HOME/.caerrarc"
+rcfile="$HOME/.caerrarc"
 bashrc="$HOME/.bashrc"
 
-if grep $rcfile "$bashrc" >/dev/null; then
+if grep "$rcfile" "$bashrc" >/dev/null; then
     case $overwrite in
-    true) echo "Ovewriting $rcfile" && write_rc $rcfile ;;
+    true) echo "Ovewriting $rcfile" && write_rc "$rcfile" ;;
     false) echo "$rcfile already exist, pass '$flag' if you want to recreate it" ;;
     esac
 else
     echo "Writing config file to $rcfile"
-    write_rc $rcfile
-    echo ". $rcfile" >>"$bashrc"
+    write_rc "$rcfile"
+    echo ". \$HOME/$(basename "$rcfile")" >>"$bashrc"
 fi
 
 source "$bashrc"
@@ -72,7 +75,7 @@ ag)
     uv sync --frozen
     ;;
 *)
-    echo "Unknown cluster '$HOSTNAME', expected first two characters to be 'ac' or 'ag'"
+    echo "Unknown cluster '$HOSTNAME', expected first two characters to be 'ac' or 'ag'" >&2
     exit 1
     ;;
 esac

@@ -8,5 +8,3 @@ sbatch --output="$CAERRA_LOGS/carra-east_%j.out" scripts/infer.sh "$rundate" car
 
 # Wait for the longest job before terminating
 sbatch --output="$CAERRA_LOGS/carra-west_%j.out" --wait scripts/infer.sh "$rundate" carra-west
-
-echo "Inference step completed successfully"

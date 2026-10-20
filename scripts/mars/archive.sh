@@ -16,7 +16,7 @@ output_dir_split=$output_dir/split
 
 # Check that necessary directories exist
 if [[ ! -d $output_dir_split ]]; then
-    echo "Directory $output_dir_split does not exist!"
+    echo "Directory $output_dir_split does not exist!" >&2
     exit 1
 fi
 
@@ -56,7 +56,6 @@ for domain in carra-east carra-west cerra; do
         else
             stream=enda
         fi
-        echo $stream
 
         sfc_fc_prev_file="${output_dir_split}/${domain}_m${member}_sfc_fc_prev.grib2"
         sfc_fc_file="${output_dir_split}/${domain}_m${member}_sfc_fc.grib2"
@@ -66,7 +65,7 @@ for domain in carra-east carra-west cerra; do
         # Ensure that all files exist before proceeding, or abort.
         for myfile in $sfc_fc_prev_file $sfc_fc_file $sfc_an_file $hl_an_file; do
             if [[ ! -f $myfile ]]; then
-                echo "File $myfile is missing. Aborting."
+                echo "File $myfile is missing. Aborting." >&2
                 exit 1
             fi
         done

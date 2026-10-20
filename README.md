@@ -55,7 +55,10 @@ The same convention is used in the scripts called in the next steps.
 ### 4. Run the inference
 ```term
 # Needs to run from the AG cluster
+# Serial (might need to update --time)
 scripts/infer.sh (date)
+# or parallellized over domains
+scripts/parallel_infer.sh (date)
 ```
 
 ### 5. Archiving
