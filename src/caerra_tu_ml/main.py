@@ -4,16 +4,13 @@ import os
 import subprocess
 import sys
 from collections.abc import Callable, Iterable
-from enum import Enum
-from typing import Any
 
 import click
 from caerra_prep import Date, Domain, common_cli_params, get_recipes_path
-from click_extra import EnumChoice
 
 DEFAULT_NAMESPACE = "production-v1"
 DEFAULT_ALGORITHM = "sha256"
-N_MEMBERS = 11
+N_MEMBERS = 10
 
 
 def sample_seed(
@@ -44,9 +41,9 @@ def sample_seed(
     return seed | (1 << 62)
 
 
-def parse_comma_separated[U](
-    value: str | None, type_: Callable[[str], U]
-) -> Iterable[U] | None:
+def parse_comma_separated[T](
+    value: str | None, type_: Callable[[str], T]
+) -> Iterable[T] | None:
     if value is None:
         return None
 
@@ -59,7 +56,7 @@ def parse_comma_separated[U](
     "--n_members",
     type=int,
     default=N_MEMBERS,
-    help="Number of members",
+    help="Number of ensemble members (on top of the 'control' member)",
 )
 @click.option(
     "--domains",
@@ -90,7 +87,7 @@ def run_inference(
     debug: bool,
 ):
     domains = domains if domains is not None else list(Domain)
-    members = members if members is not None else list(range(n_members))
+    members = members if members is not None else list(range(n_members + 1))
 
     if debug:
         print("date", date.str)
