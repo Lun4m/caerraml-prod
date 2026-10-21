@@ -27,8 +27,4 @@ echo "$(date -Iseconds): Running inference on cluster AG"
 run "infer" \
     "ssh ag-login \"cd $CAERRA_WORK_DIR; scripts/parallel_infer.sh $rundate\""
 
-echo "$(date -Iseconds): Archiving to MARS on cluster AC"
-run "archive" \
-    "ssh ac-login \"cd $CAERRA_WORK_DIR; scripts/mars.sh $rundate\""
-
 echo "$(date -Iseconds): Finished production run"
