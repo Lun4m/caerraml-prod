@@ -21,6 +21,6 @@ module load python3/3.12.11
 module load uv
 
 uv run --frozen caerra-infer \
-    --domain "$domain" \
-    --member 0 \
+    --domains "$domain" \
+    --members 0 \
     --date "$rundate"

@@ -98,7 +98,6 @@ def run_inference(
         sys.exit()
 
     os.environ["CAERRA_DATE"] = date.str
-    os.environ["N_MEMBERS"] = str(n_members)
 
     namespace = os.environ.get("CAERRA_NAMESPACE", DEFAULT_NAMESPACE)
     print("Using namespace:", namespace, flush=True)
@@ -116,10 +115,17 @@ def run_inference(
         for member in members:
             seed = sample_seed(date.start, member, domain, namespace=namespace)
 
+            encoding = {}
+            if member != 0:
+                encoding = {
+                    "perturbationNumber": member,
+                    "numberOfForecastsInEnsemble": n_members,
+                }
+
             env = os.environ.copy()
             env["CAERRA_REGION"] = domain
             env["ANEMOI_BASE_SEED"] = str(seed)
-            env["PERTURBATION_NUM"] = str(member)
+            env["CAERRA_ENCODING"] = str(encoding)
             env["GRIB_OUTNAME"] = f"{date.str}/{domain}_m{member:02}"
 
             subprocess.run(

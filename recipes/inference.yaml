@@ -10,9 +10,7 @@ input:
 output:
   grib:
     path: ${oc.env:CAERRA_OUTPUTS_PATH}/${oc.env:GRIB_OUTNAME}.grib2
-    encoding:
-      perturbationNumber: ${oc.decode:${oc.env:PERTURBATION_NUM}}
-      numberOfForecastsInEnsemble: ${oc.decode:${oc.env:N_MEMBERS}}
+    encoding: ${oc.env:CAERRA_ENCODING}
     negative_step_mode: write
     templates:
       - file:
