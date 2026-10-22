@@ -61,4 +61,8 @@ time "$CAERRA_WORK_DIR/scripts/mars/archive.sh" "$output_dir" || exit 1
 # Fetch from MARS
 # run quicklook.py on it
 
+# ===== List MARS data for CDS =============
+echo "$CAERRA_WORK_DIR/scripts/mars/list.sh" "$input_date"
+time "$CAERRA_WORK_DIR/scripts/mars/list.sh" "$input_date" || exit 1
+
 echo "All finished!"
