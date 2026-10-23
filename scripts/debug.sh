@@ -11,7 +11,8 @@
 set -e
 
 rundate=$1
-domain=$2
+domain=${2:-cerra}
+member=${3:-0}
 
 module purge
 module load prgenv/gnu
@@ -22,5 +23,5 @@ module load uv
 
 uv run --frozen caerra-infer \
     --domains "$domain" \
-    --members 0 \
+    --members "$member" \
     --date "$rundate"

@@ -125,7 +125,9 @@ def run_inference(
             env = os.environ.copy()
             env["CAERRA_REGION"] = domain
             env["ANEMOI_BASE_SEED"] = str(seed)
-            env["CAERRA_ENCODING"] = str(encoding)
+            # Omegaconf is a bit cursed and requires a string without
+            # quotes in order to be able to decode it
+            env["CAERRA_ENCODING"] = str(encoding).replace("'", "")
             env["GRIB_OUTNAME"] = f"{date.str}/{domain}_m{member:02}"
 
             subprocess.run(
