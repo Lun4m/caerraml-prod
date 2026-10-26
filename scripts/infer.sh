@@ -15,7 +15,7 @@ module load prgenv/gnu
 module load gcc/11.5.0
 module load ecmwf-toolbox/2026.04.0.0
 module load python3/3.12.11
-module load uv
+module load uv/0.13.4
 
 rundate=${1:-$(date -I -d "$CAERRA_PROD_DELAY days ago")}
 domain=${2:-"cerra,carra-east,carra-west"}

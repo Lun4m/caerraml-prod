@@ -8,7 +8,7 @@ module purge
 module load prgenv/gnu
 module load ecmwf-toolbox
 module load python3/3.12.11
-module load uv
+module load uv/0.13.4
 
 cd packages/prepare
 uv run --frozen caerra-prep --date "$rundate"
