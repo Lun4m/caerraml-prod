@@ -1,3 +1,6 @@
 # minute hour day month weekday command
 
 12 07 * * * . $HOME/.bashrc; cd $CAERRA_WORK_DIR && scripts/run_pipeline.sh
+
+# Clean up useless log files
+00 14 * * 1 . $HOME/.bashrc; cd $CAERRA_WORK_DIR && rm ecsbatch.*

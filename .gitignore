@@ -1,5 +1,6 @@
 **/__pycache__/
 .venv
+ecsbatch*
 logs/
 **/recipes/regrid.yaml
 **/recipes/era5t.yaml
