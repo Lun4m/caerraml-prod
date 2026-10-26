@@ -3,8 +3,20 @@ set -e
 
 rundate=${1:-$(date -I -d "$CAERRA_PROD_DELAY days ago")}
 
-sbatch --output="$CAERRA_LOGS/cerra_%j.out" scripts/infer.sh "$rundate" cerra
-sbatch --output="$CAERRA_LOGS/carra-east_%j.out" scripts/infer.sh "$rundate" carra-east
+run() {
+    local domain=$1 && shift
+    sbatch "$@" \
+        --output="$CAERRA_LOGS/${domain}_${rundate}_%j.out" \
+        scripts/infer.sh \
+        "$rundate" \
+        "$domain"
+    return $?
+}
 
+run cerra
+run carra-east
 # Wait for the longest job before terminating
-sbatch --output="$CAERRA_LOGS/carra-west_%j.out" --wait scripts/infer.sh "$rundate" carra-west
+if ! run carra-west --wait; then
+    echo "Inference runs failed. Check domain log files for $rundate" >&2
+    exit 1
+fi
