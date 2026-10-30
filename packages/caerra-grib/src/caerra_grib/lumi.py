@@ -1,3 +1,5 @@
+import functools
+import multiprocessing as mp
 import os
 import re
 import subprocess
@@ -130,27 +132,48 @@ def split_by_day(domain: Domain, member: str, file: Path, outdir: Path):
         split_fields(outfields, outdir_, temps, domain, member)
 
 
-def download_from_lumi(src: str, dst: Path):
-    # TODO: add perf options --checkers, --transfers
-    subprocess.run(
-        f"rclone copy lumi:465002917:{src} {dst}",
-        check=True,
-        shell=True,
-        capture_output=True,
-    )
+def download_from_lumi(
+    domain: Domain, year: int, dst: Path, pattern: str | None, ncpus: int
+) -> Path:
+    src = f"prod-inference/{domain}/grib/{year}"
+    print(f"Downloading from LUMI: {src}")
+
+    cmd = [
+        "rclone",
+        "copy",
+        f"lumi:465002917:{src}",
+        f"{dst}",
+        "--checkers",
+        f"{ncpus}",
+        "--transfers",
+        f"{ncpus}",
+        "--progress",
+        "--stats-one-line",
+        "--stats-log-level",
+        "NOTICE",
+        "--stats",
+        "10s",
+    ]
+
+    if pattern is not None:
+        print(f"Using include pattern: {pattern}")
+        include = ["--include", f'"{pattern}"']
+    else:
+        include = []
+
+    log = f"$CAERRA_LOGS/lumi-arhive-{domain}-{year}.log"
+    cmd.extend(include + [">>", log])
+
+    subprocess.run(" ".join(cmd), check=True, shell=True)
+    return dst
 
 
 def archive(domain: Domain, member: str, target: Path, log: str):
-    result = subprocess.run(
-        f"bash ../../scripts/mars/archive.sh {target} {domain} {member} >> {log}",
-        shell=True,
-        check=False,
-        capture_output=True,
-    )
+    cmd = ("../../scripts/mars/archive.sh", f"{target}", f"{domain}", member, ">>", log)
+    result = subprocess.run(" ".join(cmd), shell=True, check=False, capture_output=True)
 
     if result.returncode != 0:
-        print("Archiving failed:")
-        print(result.stderr)
+        print(f"Archiving failed: check {log}", file=sys.stderr)
         sys.exit(1)
 
 
@@ -167,6 +190,21 @@ def parse_filename(file: Path) -> str:
     return f"{member:02}"
 
 
+def process(file: Path, domain: Domain, outdir: Path, archive_only: bool):
+    print(f"Processing file {file}")
+    member = parse_filename(file)
+
+    outdir /= file.with_suffix("").name
+    if not archive_only:
+        split_by_day(domain, member, file, outdir)
+
+    for target in outdir.iterdir():
+        print(f"Archiving {target} ({member=})")
+        log = f"$CAERRA_LOGS/lumi-download-{domain}-{outdir.name}.log"
+        # TODO: should use multiprocessing? And do it inside split file?
+        archive(domain, member, target, log)
+
+
 # 1) download 1 year (by month/member)
 # 2) split month into days
 # 3) archive by day/domain/member
@@ -176,29 +214,37 @@ def parse_filename(file: Path) -> str:
 @click.argument("year", type=int, help="")
 @click.argument("domain", type=Domain, help="")
 @click.option("--download/--no-download", default=True, help="")
+@click.option("--include", type=str, default=None, help="")
+@click.option("--workers", type=int, default=None, help="Pool workers")
 @click.option("--archive-only", is_flag=True, default=False, help="")
-def main(domain: Domain, year: int, download: bool, archive_only: bool):
+def main(
+    domain: Domain,
+    year: int,
+    download: bool,
+    archive_only: bool,
+    include: str | None,
+    workers: int | None,
+):
     lumi = Path(os.path.expandvars("$SCRATCH/lumi"))
-    src = f"prod-inference/{domain}/grib/{year}"
     dst = lumi / domain / str(year)
-    out = lumi / domain / "outputs"
+    ncpus = len(os.sched_getaffinity(0))
 
     if download:
-        print(f"Downloading from LUMI: {src}")
-        download_from_lumi(src, dst)
+        download_from_lumi(domain, year, dst, include, ncpus)
     else:
         print("Skipping download from LUMI")
 
-    for file in dst.iterdir():
-        print(f"Processing file {file}")
-        member = parse_filename(file)
+    if workers is None:
+        workers = ncpus
 
-        outdir = out / file.with_suffix("").name
-        if not archive_only:
-            split_by_day(domain, member, file, outdir)
-
-        for target in outdir.iterdir():
-            print(f"Archiving {target} ({member=})")
-            log = f"$CAERRA_LOGS/lumi-arhive-{domain}-{outdir.name}.log"
-            # TODO: should use multiprocessing? And do it inside split file?
-            archive(domain, member, target, log)
+    outdir = lumi / domain / "outputs"
+    with mp.Pool(workers) as pool:
+        pool.map(
+            functools.partial(
+                process,
+                domain=domain,
+                outdir=outdir,
+                archive_only=archive_only,
+            ),
+            dst.iterdir(),
+        )
