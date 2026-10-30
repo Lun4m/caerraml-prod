@@ -35,7 +35,7 @@ class Field:
         self.field = updated
 
 
-def split_fields(
+def write_fields(
     fields: list[Field],
     outdir: Path,
     temperature: list[Field],
@@ -64,7 +64,7 @@ def split_fields(
     ):
         for field in fields:
             # Switch from Physical to ML suite
-            update = {"metadata.suiteName": 10}
+            update = {"metadata.suiteName": domain.suite_name()}
 
             if field.name in VARIABLES_TO_CLIP:
                 values = np.clip(field.values, 0.0, 100.0)
@@ -115,7 +115,7 @@ def split_by_day(domain: Domain, member: str, file: Path, outdir: Path):
         if curr_date is None or field.date > curr_date:
             if len(outfields) > 0:
                 print(f"Saving {len(outfields)} fields for time = {curr_date}")
-                split_fields(outfields, outdir_, temps, domain, member)
+                write_fields(outfields, outdir_, temps, domain, member)
                 outfields = []
                 temps = []
 
@@ -129,7 +129,7 @@ def split_by_day(domain: Domain, member: str, file: Path, outdir: Path):
 
     if len(outfields) > 0:
         print(f"Saving {len(outfields)} fields for time = {curr_date}")
-        split_fields(outfields, outdir_, temps, domain, member)
+        write_fields(outfields, outdir_, temps, domain, member)
 
 
 def download_from_lumi(
