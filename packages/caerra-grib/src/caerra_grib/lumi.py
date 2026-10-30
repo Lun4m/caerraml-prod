@@ -114,7 +114,7 @@ def split_by_day(domain: Domain, member: str, file: Path, outdir: Path):
 
         if curr_date is None or field.date > curr_date:
             if len(outfields) > 0:
-                print(f"Saving {len(outfields)} fields for time = {curr_date}")
+                print(f"Saving {len(outfields)} fields for {curr_date} ({member=})")
                 write_fields(outfields, outdir_, temps, domain, member)
                 outfields = []
                 temps = []
@@ -141,13 +141,12 @@ def download_from_lumi(
     cmd = [
         "rclone",
         "copy",
-        f"lumi:465002917:{src}",
-        f"{dst}",
+        f"lumi:465002917:{src}/",
+        f"{dst}/",
         "--checkers",
         f"{ncpus}",
         "--transfers",
         f"{ncpus}",
-        "--progress",
         "--stats-one-line",
         "--stats-log-level",
         "NOTICE",
@@ -161,15 +160,15 @@ def download_from_lumi(
     else:
         include = []
 
-    log = f"$CAERRA_LOGS/lumi-arhive-{domain}-{year}.log"
-    cmd.extend(include + [">>", log])
+    log = f"$CAERRA_LOGS/lumi-download-{domain}-{year}.log"
+    cmd.extend(include + ["&>", log])
 
     subprocess.run(" ".join(cmd), check=True, shell=True)
     return dst
 
 
 def archive(domain: Domain, member: str, target: Path, log: str):
-    cmd = ("../../scripts/mars/archive.sh", f"{target}", f"{domain}", member, ">>", log)
+    cmd = ("../../scripts/mars/archive.sh", f"{target}", f"{domain}", member, "&>", log)
     result = subprocess.run(" ".join(cmd), shell=True, check=False, capture_output=True)
 
     if result.returncode != 0:
@@ -187,7 +186,7 @@ def parse_filename(file: Path) -> str:
         raise ValueError("Invalid file name:", file)
 
     member = match.group(1)
-    return f"{member:02}"
+    return f"{member:0>2}"
 
 
 def process(file: Path, domain: Domain, outdir: Path, archive_only: bool):
@@ -200,7 +199,7 @@ def process(file: Path, domain: Domain, outdir: Path, archive_only: bool):
 
     for target in outdir.iterdir():
         print(f"Archiving {target} ({member=})")
-        log = f"$CAERRA_LOGS/lumi-download-{domain}-{outdir.name}.log"
+        log = f"$CAERRA_LOGS/lumi-archive-{domain}-{outdir.name}.log"
         # TODO: should use multiprocessing? And do it inside split file?
         archive(domain, member, target, log)
 
