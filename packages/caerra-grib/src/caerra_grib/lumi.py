@@ -168,7 +168,16 @@ def download_from_lumi(
 
 
 def archive(domain: Domain, member: str, target: Path, log: str):
-    cmd = ("../../scripts/mars/archive.sh", f"{target}", f"{domain}", member, "&>", log)
+    cmd = (
+        "../../scripts/mars/archive.sh",
+        f"{target}",
+        "--domain",
+        f"{domain}",
+        "--member",
+        member,
+        "&>",
+        log,
+    )
     result = subprocess.run(" ".join(cmd), shell=True, check=False, capture_output=True)
 
     if result.returncode != 0:
