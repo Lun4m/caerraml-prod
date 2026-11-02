@@ -14,7 +14,12 @@ from caerra_prep.main import Domain
 
 VARIABLES_TO_CLIP = ["2r", "tcc"]
 
+# Filename pattern for the inference files
+# actual pattern .../domain/grib/YYYY/YYYY-mm_nXX.grib2
+PATTERN = re.compile(r"\d+-\d+_n(\d+).grib2")
 
+
+# Wrapper around ekd.Field that stores only the attributes we need
 class Field:
     def __init__(self, field: ekd.Field):
         self.field = field
@@ -96,10 +101,9 @@ def write_fields(
             out.write(field.field)
 
 
-# We have 1 year data, separated by month and member number
-# This function takes a month file, YYYY-mm_n(memmber).grib2
-#
-# This currently only filters the single day output from normal inference
+# We have 1 year data, separated in 12 * n_members files
+# This function takes a single month/single member file, YYYY-mm_n(memmber).grib2
+# and splits it into dayly outputs (4 files per day, as required by `scripts/mars/archive.sh`)
 def split_by_day(domain: Domain, member: str, file: Path, outdir: Path):
     fields = ekd.from_source("file", str(file), stream=True).to_fieldlist()
 
@@ -185,10 +189,6 @@ def archive(domain: Domain, member: str, target: Path, log: str):
         sys.exit(1)
 
 
-# actual pattern .../domain/grib/YYYY/YYYY-mm_nXX.grib2
-PATTERN = re.compile(r"\d+-\d+_n(\d+).grib2")
-
-
 def parse_filename(file: Path) -> str:
     match = PATTERN.match(file.name)
     if match is None:
@@ -209,7 +209,6 @@ def process(file: Path, domain: Domain, outdir: Path, archive_only: bool):
     for target in outdir.iterdir():
         print(f"Archiving {target} ({member=})")
         log = f"$CAERRA_LOGS/lumi-archive-{domain}-{outdir.name}.log"
-        # TODO: should use multiprocessing? And do it inside split file?
         archive(domain, member, target, log)
 
 
@@ -219,12 +218,31 @@ def process(file: Path, domain: Domain, outdir: Path, archive_only: bool):
 # 4) delete year
 # NOTE: 1 year = 12 months * 11 members = 132 files
 @click.command()
-@click.argument("year", type=int, help="")
-@click.argument("domain", type=Domain, help="")
-@click.option("--download/--no-download", default=True, help="")
-@click.option("--include", type=str, default=None, help="")
-@click.option("--workers", type=int, default=None, help="Pool workers")
-@click.option("--archive-only", is_flag=True, default=False, help="")
+@click.argument("year", type=int, help="Year to process")
+@click.argument("domain", type=Domain, help="Domain to process")
+@click.option(
+    "--download/--no-download",
+    default=True,
+    help="Whether to download or not the data from LUMI with rclone",
+)
+@click.option(
+    "--include",
+    type=str,
+    default=None,
+    help="Include filter for rclone, when downloading data",
+)
+@click.option(
+    "--workers",
+    type=int,
+    default=None,
+    help="Number of workers used to process the data",
+)
+@click.option(
+    "--archive-only",
+    is_flag=True,
+    default=False,
+    help="Whether to only archive data without splitting it",
+)
 def main(
     domain: Domain,
     year: int,
