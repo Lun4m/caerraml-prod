@@ -1,15 +1,65 @@
-#!/usr/bin/env bash
-# Usage MARS_archive.sh <output_dir>
-# output_dir is location of inference output
+#!/bin/bash
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 output_dir" >&2
+NAME=${0##*/}
+
+print_help() {
+    echo "Usage: $NAME (opts) TARGET_DIRECTORY" >&2
+    echo
+    echo "Positional arguments"
+    echo "    TARGET_DIRECTORY            Directory containing daily inference files for all domains and members"
+    echo "                                Expects the path to end with a 'YYYY-mm-dd' subdirectory"
+    echo
+    echo "Optional arguments"
+    echo "    --domain/-d DOMAIN          Domain to archive. Default: all domains. Choices: cerra, carra-east, carra-west"
+    echo "    --member/-m MEMBER          Member to archive (as a single two digit number with leading zero, for example 00, 01). Default: all members."
+    exit 1
+}
+
+getopt -T &>/dev/null && exit_code=$? || exit_code=$?
+if ((exit_code != 4)); then
+    echo "This script requires GNU getopt" >&2
     exit 1
 fi
 
-module load ecmwf-toolbox/new
+opts=$(getopt --name "$NAME" --option hd:m: --longoptions help,domain:,member: -- "$@") || print_help
+eval set -- "$opts"
 
-output_dir="$1" # Format: .../path/yyyy-mm-dd
+declare input_domain input_member
+
+while (($#)); do
+    case $1 in
+    --help | -h) print_help ;;
+    --domain | -d)
+        input_domain=$2
+        shift 2
+        ;;
+    --member | -m)
+        input_member=$2
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    *)
+        print_help
+        ;;
+    esac
+done
+
+case $# in
+1) output_dir=$1 ;;
+0)
+    echo "Missing required argument: TARGET_DIRECTORY" >&2
+    print_help
+    ;;
+*)
+    echo "Wrong required argument: $*" >&2
+    print_help
+    ;;
+esac
+
+module load ecmwf-toolbox/new
 
 # Output data split in an,fc,hl is expected to be here
 output_dir_split=$output_dir/split
@@ -26,7 +76,6 @@ mkdir -p "$list_dir"
 # Common MARS parameters across domains
 database=marsscratch # CHANGE TO marser WHEN GOING PROD
 class=rr
-stream=enda
 expver=prod
 
 rundate=$(basename "$output_dir")
@@ -34,7 +83,17 @@ prev_date=$(date -I -d "$rundate - 1 day")
 
 # For each domain, generate MARS request, then archive it
 for domain in carra-east carra-west cerra; do
+    # Filter by user input if provided
+    if [[ ! -z $input_domain && $domain != "$input_domain" ]]; then
+        continue
+    fi
+
     for member in {00..10}; do
+        # Filter by user input if provided
+        if [[ ! -z $input_member && $member != "$input_member" ]]; then
+            continue
+        fi
+
         list_file=$list_dir/${domain}_${member}.mars
 
         # Set domain specific parameters

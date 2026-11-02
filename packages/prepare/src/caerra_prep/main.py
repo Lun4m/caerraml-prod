@@ -28,6 +28,15 @@ class Domain(enum.StrEnum):
     def __repr__(self):
         return self.value
 
+    def suite_name(self) -> int:
+        match self:
+            case Domain.CARRA_EAST:
+                return 7
+            case Domain.CARRA_WEST:
+                return 8
+            case Domain.CERRA:
+                return 10
+
 
 class Date:
     def __init__(self, date: datetime):

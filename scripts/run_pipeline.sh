@@ -10,7 +10,7 @@ run() {
     local cmd=$2
     local log="$CAERRA_LOGS/${task}_$rundate.log"
 
-    if ! eval "$cmd" >"$log" 2>&1; then
+    if ! eval "$cmd" >>"$log" 2>&1; then
         echo "Task '$task' failed, check the log file: $log" >&2
         exit 1
     fi
