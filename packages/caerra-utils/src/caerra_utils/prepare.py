@@ -52,13 +52,16 @@ class Date:
         self.start = start
         self.end = end
 
+    def __str__(self):
+        return self.str
+
 
 class Paths:
     def __init__(self, date: Date, masks: Path, dsets: Path):
         self.masks = masks
 
         # Append date to output path and create directory
-        self.dsets = dsets / date.str
+        self.dsets = dsets / str(date)
         self.dsets.mkdir(exist_ok=True)
 
         # recipes dir lives in the root of the repo
