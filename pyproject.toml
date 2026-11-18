@@ -41,7 +41,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
-anemoi-inference = { git = "https://github.com/ecmwf/anemoi-inference", branch = "feat/core-c3s2-361b-prod" }
+anemoi-inference = { git = "https://github.com/ecmwf/anemoi-inference", rev = "6c74ae327ca049b13d8e9132650a275637b58988" }
 anemoi-training = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "training" }
 anemoi-models = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "models" }
 anemoi-graphs = { git = "https://github.com/ecmwf/anemoi-core", rev = "5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d", subdirectory = "graphs" }
