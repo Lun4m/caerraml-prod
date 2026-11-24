@@ -6,7 +6,7 @@ rundate=${1:-$(date -I -d "$CAERRA_PROD_DELAY days ago")}
 run() {
     local domain=$1 && shift
     sbatch "$@" --output="$CAERRA_LOGS/${domain}_${rundate}_%j.out" \
-        scripts/infer.sh --date "$rundate" --domains "$domain"
+        scripts/infer.sh -- --date "$rundate" --domains "$domain"
     return $?
 }
 
