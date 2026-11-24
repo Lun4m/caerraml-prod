@@ -74,7 +74,7 @@ list_dir=$output_dir/mars_templates
 mkdir -p "$list_dir"
 
 # Common MARS parameters across domains
-database=marsscratch # CHANGE TO marser WHEN GOING PROD
+database=marsscratch
 class=rr
 expver=prod
 
@@ -98,6 +98,9 @@ for domain in carra-east carra-west cerra; do
 
         # Set domain specific parameters
         if [[ $domain == "cerra" ]]; then
+            # TODO: move outside when we can archive all domains to operational mars
+            database=marser
+            expver="test"
             fcparams="201/202/169/175/228228/49" # wind gust only in cerra
             fcexpect1=6                          # Expect for fc params 21 run previous day
             fcexpect2=42                         # Expect for fc params current day
