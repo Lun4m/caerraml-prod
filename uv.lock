@@ -110,8 +110,8 @@ tri = [
 
 [[package]]
 name = "anemoi-inference"
-version = "0.8.4.dev146+g6c74ae327"
-source = { git = "https://github.com/ecmwf/anemoi-inference?branch=feat%2Fcore-c3s2-361b-prod#6c74ae327ca049b13d8e9132650a275637b58988" }
+version = "0.8.4.dev147+g3df1460f2"
+source = { git = "https://github.com/ecmwf/anemoi-inference?rev=3df1460f206ad55024715a70c5b1a99f8d4c49ff#3df1460f206ad55024715a70c5b1a99f8d4c49ff" }
 dependencies = [
     { name = "anemoi-datasets" },
     { name = "anemoi-transform" },
@@ -417,7 +417,7 @@ dev = [
 requires-dist = [
     { name = "anemoi-datasets", specifier = "==0.5.35" },
     { name = "anemoi-graphs", extras = ["tri"], git = "https://github.com/ecmwf/anemoi-core?subdirectory=graphs&rev=5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d" },
-    { name = "anemoi-inference", git = "https://github.com/ecmwf/anemoi-inference?branch=feat%2Fcore-c3s2-361b-prod" },
+    { name = "anemoi-inference", git = "https://github.com/ecmwf/anemoi-inference?rev=3df1460f206ad55024715a70c5b1a99f8d4c49ff" },
     { name = "anemoi-models", git = "https://github.com/ecmwf/anemoi-core?subdirectory=models&rev=5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d" },
     { name = "anemoi-training", git = "https://github.com/ecmwf/anemoi-core?subdirectory=training&rev=5dcc7d6f9dd5aa96cf6233dd23fb6b18a3fc911d" },
     { name = "anemoi-transform", specifier = "==0.3.1" },
@@ -463,7 +463,6 @@ dependencies = [
     { name = "metview" },
     { name = "pydantic" },
     { name = "pydantic-core" },
-    { name = "pyqt6" },
     { name = "pyyaml" },
     { name = "typing-extensions" },
     { name = "xarray" },
@@ -481,7 +480,6 @@ requires-dist = [
     { name = "metview", specifier = ">=1.16.3" },
     { name = "pydantic", specifier = "==2.13.1" },
     { name = "pydantic-core", specifier = "==2.46.1" },
-    { name = "pyqt6", specifier = ">=6.12.0" },
     { name = "pyyaml", specifier = "==6.0.3" },
     { name = "typing-extensions", specifier = ">=4.12.2" },
     { name = "xarray", specifier = ">=2026.7.0" },
@@ -2187,39 +2185,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b8/be/212882c450bba74fc8d7d35cbd57e4af84792f0a56194819d98106b075af/pyproj-3.7.2-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:1edc34266c0c23ced85f95a1ee8b47c9035eae6aca5b6b340327250e8e281630", size = 9552797, upload-time = "2025-08-14T12:04:16.624Z" },
     { url = "https://files.pythonhosted.org/packages/ba/c0/c0f25c87b5d2a8686341c53c1792a222a480d6c9caf60311fec12c99ec26/pyproj-3.7.2-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:aa9f26c21bc0e2dc3d224cb1eb4020cf23e76af179a7c66fea49b828611e4260", size = 10837036, upload-time = "2025-08-14T12:04:18.733Z" },
     { url = "https://files.pythonhosted.org/packages/5d/37/5cbd6772addde2090c91113332623a86e8c7d583eccb2ad02ea634c4a89f/pyproj-3.7.2-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:f9428b318530625cb389b9ddc9c51251e172808a4af79b82809376daaeabe5e9", size = 10775952, upload-time = "2025-08-14T12:04:20.709Z" },
-]
-
-[[package]]
-name = "pyqt6"
-version = "6.12.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pyqt6-qt6" },
-    { name = "pyqt6-sip" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/8b/77/73ae0fd2ce7915ce87269743fd11f14f009b8db60a58759afc1c402327f2/pyqt6-6.12.0.tar.gz", hash = "sha256:d3e021b716bae880224422f9d1b894d2d53de7e60e60dbc43f860723f9cc300b", size = 1106528, upload-time = "2026-10-28T15:20:59.665Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/cb/7557f6c559b392bb66a184eee802091676bf8e67a0d00f19a0dc10b5a7ae/pyqt6-6.12.0-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:1922bf7440310845a4fd06f4242288084dc26cf682a67e561b115570a8def3d1", size = 8488924, upload-time = "2026-10-28T15:20:49.94Z" },
-    { url = "https://files.pythonhosted.org/packages/37/5e/5154ead9550aed78ecf9adddb2d5087ac8878cb9c337834b951c32763fae/pyqt6-6.12.0-cp310-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:2799f2e75594af313222a2dc2da9f965fe88be29ee4293d7937e7763630f5610", size = 8496570, upload-time = "2026-10-28T15:20:53.241Z" },
-]
-
-[[package]]
-name = "pyqt6-qt6"
-version = "6.12.0"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/e5/c296a9bcde5ef9bbbc5249079422266ccd9c583d117c27d0e832861e9767/pyqt6_qt6-6.12.0-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:b76e9962e83cf7daff9bb7ab169c804f37b77ab2d7393d3b380351f5a2441ee0", size = 88493791, upload-time = "2026-10-28T15:18:00.645Z" },
-    { url = "https://files.pythonhosted.org/packages/62/85/4987f605abd8854eaaefe7a26e5926bab0600985984aa5555cf0d8d7cb2f/pyqt6_qt6-6.12.0-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:2460119ac5f725cfddc331bd56eca22fbb61b29a549d417b7bcc304c7fc9459b", size = 89383245, upload-time = "2026-10-28T15:18:06.388Z" },
-]
-
-[[package]]
-name = "pyqt6-sip"
-version = "13.13.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/78/35/bed43ff7cf040ced6b62a17b272abecb94914755284b54e8d06844e1ed23/pyqt6_sip-13.13.0.tar.gz", hash = "sha256:2cd55f575cde208c398d6cfdecc5a13394ed2afb54226210c50e3a6df7c3a997", size = 95006, upload-time = "2026-10-04T12:26:46.405Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/d2/f2c77662be1f4ca6e35a8897d573b51a9e662e6b86a0d42c50afa9d46acf/pyqt6_sip-13.13.0-cp312-cp312-manylinux1_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:7429e63fc8279a0508ed5cbc1b33da76c15a61a06a745825e807a3604fbde4f2", size = 301294, upload-time = "2026-10-04T12:26:28.062Z" },
-    { url = "https://files.pythonhosted.org/packages/64/f4/4ce0629bf6780c62d3bb4ebe33dfe1aa9523888baab5a8d0a4b13708c5ab/pyqt6_sip-13.13.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:42544406d4519122ad9ee7a79bc9195cdceba6d777d2e481d346e6ad2801f38a", size = 322837, upload-time = "2026-10-04T12:26:26.802Z" },
 ]
 
 [[package]]
