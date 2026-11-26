@@ -29,8 +29,9 @@ export CAERRA_WORK_DIR=$work_dir
 EOF
 }
 
-module load uv
+module load uv/0.13.5
 module load python3/3.12.11
+module load cuda/13.0
 
 flag="--force"
 if [ -z "$1" ]; then
@@ -60,24 +61,8 @@ fi
 source "$bashrc"
 mkdir -p "$CAERRA_LOGS"
 
-# HACK: reads cluster name directly from $HOSTNAME,
-# will crash if these change in the future
-case ${HOSTNAME:0:2} in
-ac)
-    echo "Syncing python packages on AC cluster"
-    # Only need to prepare datasets on AC
-    cd packages/prepare
-    uv sync --frozen
-    ;;
-ag)
-    echo "Syncing python packages on AG cluster"
-    module load cuda/13.0
-    uv sync --frozen
-    ;;
-*)
-    echo "Unknown cluster '$HOSTNAME', expected first two characters to be 'ac' or 'ag'" >&2
-    exit 1
-    ;;
-esac
+echo "Syncing python packages"
+
+uv sync --frozen
 
 echo "Installation completed"

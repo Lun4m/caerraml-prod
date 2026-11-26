@@ -35,6 +35,7 @@ dependencies = [
 
 [project.scripts]
 caerra-infer = "caerra_tu_ml.main:run_inference"
+caerra-prep = "caerra_tu_ml.prepare:cli"
 
 [build-system]
 requires = ["hatchling"]

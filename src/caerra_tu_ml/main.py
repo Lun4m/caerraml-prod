@@ -6,7 +6,8 @@ import sys
 from collections.abc import Callable, Iterable
 
 import click
-from caerra_utils import Date, Domain, common_cli_params, get_recipes_path
+
+from .utils import Date, Domain, common_cli_params, get_recipes_path
 
 DEFAULT_NAMESPACE = "production-v1"
 DEFAULT_ALGORITHM = "sha256"

@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=8
-#SBATCH --time=01:40:00
+#SBATCH --time=02:00:00
 #SBATCH --hint=nomultithread
 
 set -e
