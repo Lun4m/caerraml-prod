@@ -115,11 +115,11 @@ def run_inference(
         for member in members:
             seed = sample_seed(date.start, member, domain, namespace=namespace)
 
-            encoding = {"expver": "test"} if domain == Domain.CERRA else {}
+            encoding = {}
             if member != 0:
-                encoding |= {
-                    "perturbationNumber": str(member),
-                    "numberOfForecastsInEnsemble": str(n_members),
+                encoding = {
+                    "perturbationNumber": member,
+                    "numberOfForecastsInEnsemble": n_members,
                 }
 
             env = os.environ.copy()
