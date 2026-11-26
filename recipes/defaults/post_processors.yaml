@@ -48,6 +48,16 @@ post_processors:
       minimum: 0.0
       maximum: 100.0
 
+  - forward_transform_filter:
+      filter: clip-fields
+      param: 10fg
+      minimum: 0.0
+
+  - forward_transform_filter:
+      filter: clip-fields
+      param: tcivw
+      minimum: 0.0
+
   - min_max_clipper:
       target: 2t
       min: mn2t
