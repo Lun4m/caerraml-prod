@@ -42,10 +42,9 @@ fi
 echo "$CAERRA_WORK_DIR/scripts/mars/split_output.sh" "$output_dir"
 time "$CAERRA_WORK_DIR/scripts/mars/split_output.sh" "$output_dir" || exit 1
 
-# TODO:
 # ===== Run grib-check ============
-# If we want, to run
-# grib-check -C crra /path/to/file.grib2 | grep FAIL # If nonzero, exit
+echo "$CAERRA_WORK_DIR/scripts/mars/grib_check.sh" "$output_dir"
+time "$CAERRA_WORK_DIR/scripts/mars/grib_check.sh" "$output_dir" || exit 1
 
 # TODO:
 # ===== Sanitycheck values ========
