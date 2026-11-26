@@ -21,7 +21,7 @@ if ((exit_code != 4)); then
     exit 1
 fi
 
-opts=$(getopt --name "$NAME" --option hd:m: --longoptions help,domain:,member: -- "$@") || print_help
+opts=$(getopt --name "$NAME" --option hd:m: --longoptions help,domain:,member:,db:,expver: -- "$@") || print_help
 eval set -- "$opts"
 
 declare input_domain input_member
@@ -35,6 +35,18 @@ while (($#)); do
         ;;
     --member | -m)
         input_member=$2
+        shift 2
+        ;;
+    --db)
+        case $2 in
+        prod) database=marser ;;
+        scratch) database=marsscratch ;;
+        *) echo "Valid DBs are: prod, scratch. Got $2, defaulting to scratch" ;;
+        esac
+        shift 2
+        ;;
+    --expver)
+        expver=$2
         shift 2
         ;;
     --)
@@ -61,6 +73,11 @@ esac
 
 module load ecmwf-toolbox/new
 
+# Common MARS parameters across domains
+database=${database:-marsscratch}
+expver=${expver:-prod}
+class=rr
+
 # Output data split in an,fc,hl is expected to be here
 output_dir_split=$output_dir/split
 
@@ -72,11 +89,6 @@ fi
 
 list_dir=$output_dir/mars_templates
 mkdir -p "$list_dir"
-
-# Common MARS parameters across domains
-database=marsscratch
-class=rr
-expver=prod
 
 rundate=$(basename "$output_dir")
 prev_date=$(date -I -d "$rundate - 1 day")
@@ -98,9 +110,6 @@ for domain in carra-east carra-west cerra; do
 
         # Set domain specific parameters
         if [[ $domain == "cerra" ]]; then
-            # TODO: move outside when we can archive all domains to operational mars
-            database=marser
-            expver="test"
             fcparams="201/202/169/175/228228/49" # wind gust only in cerra
             fcexpect1=6                          # Expect for fc params 21 run previous day
             fcexpect2=42                         # Expect for fc params current day
